@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{4a770e49-d1d3-456c-b05e-3b3df4a81bad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Data">
+      <UniqueIdentifier>{71c01d4d-7eb7-490c-82d8-8a7de5dd9370}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="SemestralnaPraca.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Data\kraje.csv">
+      <Filter>Resources\Data</Filter>
+    </None>
+    <None Include="Resources\Data\obce.csv">
+      <Filter>Resources\Data</Filter>
+    </None>
+    <None Include="Resources\Data\okresy.csv">
+      <Filter>Resources\Data</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DataLoader\DataLoader.h" />
+    <ClInclude Include="Structures\Models\TerritorialUnit.h" />
+    <ClInclude Include="Structures\TerritorialUnitStructure.h" />
+    <ClInclude Include="Services\Searcher.h" />
+    <ClInclude Include="Cli\cli.h" />
+    <ClInclude Include="App\App.h" />
+  </ItemGroup>
+</Project>
