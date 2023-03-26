@@ -14,7 +14,7 @@ void contains(string vstup);
 void coutToConsole();
 
 App* app;
-TerritorialStructure* filteredUnits = new TerritorialStructure();
+TerritorialStructure* filteredUnits;
 
 int main()
 {
@@ -47,7 +47,6 @@ int main()
         }
     }
 
-    delete filteredUnits;
     delete app;
     return 0;
 
@@ -81,6 +80,9 @@ void findInformation(int s) {
 }
 
 void startsWith(string vstup) {
+
+    filteredUnits = new TerritorialStructure();
+
     // Zacina na znak
     //https://www.techiedelight.com/check-if-a-string-starts-with-a-certain-string-in-cpp/
      
@@ -96,6 +98,9 @@ void startsWith(string vstup) {
 }
 
 void contains(string vstup) {
+
+    filteredUnits = new TerritorialStructure();
+
     // Coitains
     // https://www.techiedelight.com/check-if-a-string-contains-another-string-in-cpp/
 
@@ -117,4 +122,6 @@ void coutToConsole() {
         cout << i << ". | " << filUnit->toString() << endl;
         i++;
     }
+
+    delete filteredUnits;
 }
