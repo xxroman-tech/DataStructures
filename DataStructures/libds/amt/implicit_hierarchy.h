@@ -92,11 +92,36 @@ namespace ds::amt {
 	}
 
 	template<typename DataType, size_t K>
-    size_t ImplicitHierarchy<DataType, K>::degree(size_t index) const
+	size_t ImplicitHierarchy<DataType, K>::degree(size_t index) const
 	{
 		// Na doma
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		size_t actualLevel = this->level(index);
+		size_t indexOfLast = this->size() - 1;
+		size_t depth = this->level(indexOfLast);
+
+		if (actualLevel == depth) {
+			return 0;
+		}
+		else {
+			if (actualLevel = depth - 1) {
+				size_t indexOfParentLast = this->indexOfParent(indexOfLast);
+				if (index < indexOfParentLast) {
+					return K;
+				}
+				else {
+					if (index > indexOfParentLast) {
+						return 0;
+					}
+					else {
+						size_t mod = (this->size() - 1) % K;
+						return mod = 0 ? K : mod;
+					}
+				}
+			}
+			else {
+				return K;
+			}
+		}
 	}
 
 	template<typename DataType, size_t K>
