@@ -4,6 +4,7 @@
 #include "../DataLoader/DataLoader.h"
 
 // Trieda bude loadovat data do pozadovanych struktur
+// Zatial loaduje len do struktury TerritorialUnitStructure ktora ma vector 
 
 class App {
 public:

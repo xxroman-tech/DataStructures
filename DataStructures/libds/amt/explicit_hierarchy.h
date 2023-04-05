@@ -236,25 +236,25 @@ namespace ds::amt {
 	template<typename BlockType>
     void ExplicitHierarchy<BlockType>::clear()
 	{
-		// TODO 06
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		// Cvicenie 6 mazeme od najspodnejsej urovne
+		Hierarchy<BlockType>::processPostOrder(this->root_, [&](BlockType* b) {
+			AMS<BlockType>::memoryManager_->releaseMemory(b);
+		});
+		this->root_ = nullptr;
 	}
 
 	template<typename BlockType>
     size_t ExplicitHierarchy<BlockType>::size() const
 	{
-		// TODO 06
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		// Cvicenie 6
+		return this->root_ != nullptr ? Hierarchy<BlockType>::nodeCount(*this->root_) : 0;
 	}
 
 	template<typename BlockType>
     bool ExplicitHierarchy<BlockType>::isEmpty() const
 	{
-		// TODO 06
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		// Cvicenie 6
+		return this->root_ == nullptr;
 	}
 
 	template<typename BlockType>
@@ -294,33 +294,34 @@ namespace ds::amt {
 	template<typename BlockType>
     BlockType* ExplicitHierarchy<BlockType>::accessRoot() const
 	{
-		// TODO 06
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		// Cvicenie 6
+		return this->root_;
 	}
 
 	template<typename BlockType>
     BlockType* ExplicitHierarchy<BlockType>::accessParent(const BlockType& node) const
 	{
-		// TODO 06
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		// Cvicenie 6
+		return static_cast<BlockType*>(node.parent_);
 	}
 
 	template<typename BlockType>
     BlockType& ExplicitHierarchy<BlockType>::emplaceRoot()
 	{
-		// TODO 06
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		// Cvicenie 6 emplaceRoot -> vytvor novy koren
+		this->root_ = AMS<BlockType>::memoryManager_->allocateMemory();
+		return *this->root_;
 	}
 
 	template<typename BlockType>
     void ExplicitHierarchy<BlockType>::changeRoot(BlockType* newRoot)
 	{
-		// TODO 06
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		// Cvicenie 6 -> zmen koren
+		if (newRoot != nullptr) {
+			newRoot->parent_ = nullptr;
+		}
+
+		this->root_ = newRoot;
 	}
 
 	template<typename DataType>

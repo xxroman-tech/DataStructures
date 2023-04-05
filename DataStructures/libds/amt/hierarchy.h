@@ -479,9 +479,18 @@ namespace ds::amt {
 	template<typename BlockType>
     typename Hierarchy<BlockType>::PreOrderHierarchyIterator& Hierarchy<BlockType>::PreOrderHierarchyIterator::operator++()
 	{
-		// TODO 05
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		// Cvicenie 6 z 5
+		if (this->tryFindNextSonInCurrentPosition()) {
+			this->savePosition(this->currentPosition_->currentSon_);
+		}
+		else {
+			this->removePosition();
+			if (this->currentPosition_ != nullptr) {
+				++(*this);
+			}
+		}
+
+		return *this;
 	}
 
 	template<typename BlockType>
@@ -504,9 +513,21 @@ namespace ds::amt {
 	template<typename BlockType>
     typename Hierarchy<BlockType>::PostOrderHierarchyIterator& Hierarchy<BlockType>::PostOrderHierarchyIterator::operator++()
 	{
-		// TODO 05
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		// Cvicenie 6 z 5
+		if (!this->currentPosition_->currentNodeProcessed_ && this->tryFindNextSonInCurrentPosition()) {
+			this->savePosition(this->currentPosition_->currentSon_);
+			++(*this);
+		}
+		else {
+			if (this->currentPosition_->currentNodeProcessed_) {
+				this->removePosition();
+				if (this->currentPosition_ != nullptr) {
+					++(*this);
+				}
+			}
+		}
+		
+		return *this;
 	}
 
     template <typename BlockType>
@@ -637,9 +658,27 @@ namespace ds::amt {
 	template<typename BlockType>
     typename BinaryHierarchy<BlockType>::InOrderHierarchyIterator& BinaryHierarchy<BlockType>::InOrderHierarchyIterator::operator++()
 	{
-		// TODO 05
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		// Cvicenie 6 z 5
+		if (this->currentPosition_->currentNodeProcessed_) {
+			if (this->currentPosition_->currentSonOrder_ != LEFT_SON_INDEX && tryToGoToLeftSonInCurrentPosition()) {
+				this->savePosition(this->currentPosition_->currentSon_);
+				++(*this);
+			}
+		}
+		else {
+			if (this->currentPosition_->currentSonOrder_ != RIGHT_SON_INDEX && tryToGoToRightSonInCurrentPosition()) {
+				this->savePosition(this->currentPosition_->currentSon_);
+				++(*this);
+			}
+			else {
+				this->removePosition();
+				if (this->currentPosition_ != nullptr) {
+					++(*this);
+				}
+			}
+		}
+
+		return *this;
 	}
 
 	template<typename BlockType>
