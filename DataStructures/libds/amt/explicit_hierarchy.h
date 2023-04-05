@@ -340,49 +340,67 @@ namespace ds::amt {
     template <typename DataType>
     MultiWayExplicitHierarchy<DataType>::~MultiWayExplicitHierarchy()
     {
-		// TODO 06
-		// po implementacii vymazte vyhodenie vynimky!
-		// throw std::runtime_error("Not implemented yet");
+		// Cvicenie 07
+		this->clear();
     }
 
     template<typename DataType>
     size_t MultiWayExplicitHierarchy<DataType>::degree(const BlockType& node) const
 	{
-		// TODO 06
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		// Cvicenie 07
+		return node.sons_->size();
 	}
 
 	template<typename DataType>
     MultiWayExplicitHierarchyBlock<DataType>* MultiWayExplicitHierarchy<DataType>::accessSon(const BlockType& node, size_t sonOrder) const
 	{
-		// TODO 06
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		// Cvicenie 07
+		MemoryBlock<MultiWayExplicitHierarchyBlock<DataType>*>* sonBlock = node.sons_->access(sonOrder);
+		if (sonBlock == nullptr) {
+			return nullptr;
+		}
+		MultiWayExplicitHierarchyBlock<DataType>* son = sonBlock->data_;
+
+		return son;
 	}
 
 	template<typename DataType>
     MultiWayExplicitHierarchyBlock<DataType>& MultiWayExplicitHierarchy<DataType>::emplaceSon(BlockType& parent, size_t sonOrder)
 	{
-		// TODO 06
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		// Cvicenie 07
+		BlockType* newSon = AbstractMemoryStructure<BlockType>::memoryManager_->allocateMemory();
+		parent.sons_->insert(sonOrder).data_ = newSon;
+		newSon->parent_ = &parent;
+
+		return *newSon;
 	}
 
 	template<typename DataType>
     void MultiWayExplicitHierarchy<DataType>::changeSon(BlockType& parent, size_t sonOrder, BlockType* newSon)
 	{
-		// TODO 06
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		// Cvicenie 07
+		MemoryBlock<BlockType*>* sonBlock = parent.sons_->access(sonOrder);
+
+		BlockType* oldSon = sonBlock->data_;
+		sonBlock->data_ = newSon;
+
+		if (oldSon != nullptr) { oldSon->parent_ = nullptr; }
+		if (newSon != nullptr) { newSon->parent_ = &parent; }
 	}
 
 	template<typename DataType>
     void MultiWayExplicitHierarchy<DataType>::removeSon(BlockType& parent, size_t sonOrder)
 	{
-		// TODO 06
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		// Cvicenie 07
+		MemoryBlock<BlockType*>* sonBlock = parent.sons_->access(sonOrder);
+
+		BlockType* removedSon = sonBlock->data_;
+
+		Hierarchy<BlockType>::processPostOrder(removedSon, [&](BlockType* b) {
+			AbstractMemoryStructure<BlockType>::memoryManager_->releaseMemory(b);
+		});
+
+		parent.sons_->remove(sonOrder);
 	}
 
 	template<typename DataType, size_t K>
