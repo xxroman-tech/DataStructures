@@ -168,9 +168,14 @@ namespace ds::adt {
     template<typename T>
     ADT& Array<T>::assign(const ADT& other)
     {
-        // TODO 07
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        // Cvicenie 08
+        const Array<T>& otherArray = dynamic_cast<const Array<T>&>(other);
+        if (base_ != otherArray.base_ || this->size() != otherArray.size()) {
+            this->error("Array dimensions are different!");
+        }
+        ADS<T>::assign(other);
+
+        return *this;
     }
 
     template<typename T>
@@ -194,9 +199,8 @@ namespace ds::adt {
     template<typename T>
     bool Array<T>::isEmpty() const
     {
-        // TODO 07
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        // Cvicenie 08
+        return false;
     }
 
     template<typename T>
@@ -209,33 +213,37 @@ namespace ds::adt {
     template<typename T>
     T Array<T>::access(size_t index) const
     {
-        // TODO 07
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        // Cvicenie 08
+        if (!this->validateIndex(index)) {
+            this->error("Invalid index!");
+        }
+
+        return this->getSequence()->access(this->mapIndex(index))->data_;
     }
 
     template<typename T>
     void Array<T>::set(T element, size_t index)
     {
-        // TODO 07
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        // Cvicenie 08
+        if (!this->validateIndex(index)) {
+            this->error("Invalid index!");
+        }
+
+        this->getSequence()->access(this->mapIndex(index))->data_ = element;
     }
 
     template <typename T>
     auto Array<T>::begin() -> IteratorType
     {
-        // TODO 07
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        // Cvicenie 08
+        return this->getSequence()->begin();
     }
 
     template <typename T>
     auto Array<T>::end() -> IteratorType
     {
-        // TODO 07
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        // Cvicenie 08
+        return this->getSequence()->end();
     }
 
     template<typename T>
@@ -247,17 +255,15 @@ namespace ds::adt {
     template<typename T>
     bool Array<T>::validateIndex(size_t index) const
     {
-        // TODO 07
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        // Cvicenie 08
+        return index >= this->base_ && index < this->base_ + this->size();
     }
 
     template<typename T>
     size_t Array<T>::mapIndex(size_t index) const
     {
-        // TODO 07
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        // Cvicenie 08
+        return index - this->base_;
     }
 
     //----------
@@ -329,32 +335,42 @@ namespace ds::adt {
     template<typename T>
     T Matrix<T>::access(size_t index1, size_t index2) const
     {
-        // TODO 07
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        // Cvicenie 08
+        if (this->validateIndices(index1, index2)) {
+            this->error("Invalid index!");
+        }
+        size_t mappedIndex = this->mapIndices(index1, index2);
+
+        return this->getSequence()->access(mappedIndex)->data_;
     }
     template<typename T>
     void Matrix<T>::set(T element, size_t index1, size_t index2)
     {
-        // TODO 07
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        // Cvicenie 08
+        if (this->validateIndices(index1, index2)) {
+            this->error("Invalid index!");
+        }
+        size_t mappedIndex = this->mapIndices(index1, index2);
+
+        this->getSequence()->access(mappedIndex)->data_ = element;
     }
 
     template<typename T>
     bool Matrix<T>::validateIndices(size_t index1, size_t index2) const
     {
-        // TODO 07
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        // Cvicenie 08
+        return index1 >= this->dimension1_.getBase() &&
+            index1 < this->dimension1_.getBase() + this->dimension1_.getSize() &&
+            index2 >= this->dimension2_.getBase() &&
+            index2 < this->dimension2_.getBase() + this->dimension2_.getSize();
     }
 
     template<typename T>
     size_t Matrix<T>::mapIndices(size_t index1, size_t index2) const
     {
-        // TODO 07
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        // Cvicenie 08
+        return (index1 - this->dimension1_.getBase()) * this->dimension2_.getSize() +
+            (index2 - this->dimension2_.getBase());
     }
 
     template<typename T>
