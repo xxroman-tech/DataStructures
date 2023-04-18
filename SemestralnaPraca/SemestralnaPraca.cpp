@@ -3,14 +3,15 @@
 #include <iostream>
 #include <Windows.h>
 #include "App/App.h"
-
 #include "Services/Searcher.h"
 #include <algorithm>
-#include "../DataStructures/libds/heap_monitor.h"
+#include <libds/heap_monitor.h>
+#include "Structures/Enums/TerritorialUnitTypes.h"
 
 void findInformation(int s);
 void startsWith(string vstup);
 void contains(string vstup);
+void hasType(TerritorialUnitType type);
 void coutToConsole();
 
 App* app;
@@ -33,10 +34,11 @@ int main()
         cout << "Zadajte akciu: " << endl;
         cout << "  1. Vyhladat informacie 'startsWith'" << endl;
         cout << "  2. Vyhladat informacie 'cotains'" << endl;
+        cout << "  3. Vyhladat informacie podla 'hasType'" << endl;
 
         cin >> vstup;
 
-        if (vstup > 2) {
+        if (vstup > 3) {
             cout << "Zly vstup!" << endl;
         }
         else if (vstup == 0) {
@@ -57,20 +59,53 @@ void findInformation(int s) {
 
     while (vstup != "q") {
         cout << "\nPre navrat stlacte 'q'" << endl;
-        cout << "Zadajte text ktory chcete vyhladat: " << endl;
+        if (s != 3) {
+            cout << "Zadajte text ktory chcete vyhladat: " << endl;
 
-        cin >> vstup;
+            cin >> vstup;
 
-        // Change to lowecase
-        for_each(vstup.begin(), vstup.end(), [](char& c) {
-            c = ::tolower(c);
+            // Change to lowecase
+            for_each(vstup.begin(), vstup.end(), [](char& c) {
+                c = ::tolower(c);
             });
 
-        if (s == 1) {
-            startsWith(vstup);
+            if (s == 1) {
+                startsWith(vstup);
+            }
+            else if (s == 2) {
+                contains(vstup);
+            }
         }
-        else if (s == 2) {
-            contains(vstup);
+        else {
+            cout << "Zvolte z troch typov 'uzemnych jednotiek' ktore chcete vyhladat:" << endl;
+            cout << "  1. Obec" << endl;
+            cout << "  2. Okres" << endl;
+            cout << "  3. Kraj'" << endl;
+
+            bool koniec = false;
+            int typeVstup = -1;
+
+            while (!koniec) {
+                cin >> typeVstup;
+                if (typeVstup > 3 || typeVstup < 1) {
+                    cout << "Zly vstup!" << endl;
+                }
+                else {
+                    koniec = true;
+                }
+            }
+
+            switch (typeVstup) {
+                case 1:
+                    hasType(MUNICIPALITY);
+                    break;
+                case 2:
+                    hasType(DISTRICT);
+                    break;
+                case 3:
+                    hasType(REGION);
+                    break;
+            }
         }
 
         coutToConsole();
@@ -86,7 +121,7 @@ void startsWith(string vstup) {
     // Zacina na znak
     //https://www.techiedelight.com/check-if-a-string-starts-with-a-certain-string-in-cpp/
      
-    Searcher::getTerritorialUnitsByString(app->getUnits(), filteredUnits, [&](TerritorialUnit* territorialUnit) {
+    Searcher::getTerritorialUnitsByString(app->getHierarchy(), filteredUnits, [&](TerritorialUnit* territorialUnit) {
         string name = territorialUnit->getShortTitle();
 
         for_each(name.begin(), name.end(), [](char& c) {
@@ -104,7 +139,7 @@ void contains(string vstup) {
     // Coitains
     // https://www.techiedelight.com/check-if-a-string-contains-another-string-in-cpp/
 
-    Searcher::getTerritorialUnitsByString(app->getUnits(), filteredUnits, [&](TerritorialUnit* territorialUnit) {
+    Searcher::getTerritorialUnitsByString(app->getHierarchy(), filteredUnits, [&](TerritorialUnit* territorialUnit) {
         string name = territorialUnit->getShortTitle();
 
         for_each(name.begin(), name.end(), [](char& c) {
@@ -112,6 +147,18 @@ void contains(string vstup) {
         });
 
         return name.find(vstup) != string::npos;
+    });
+}
+
+void hasType(TerritorialUnitType type) {
+
+    filteredUnits = new TerritorialStructure();
+
+    // Zacina na znak
+    //https://www.techiedelight.com/check-if-a-string-starts-with-a-certain-string-in-cpp/
+
+    Searcher::getTerritorialUnitsByString(app->getHierarchy(), filteredUnits, [&](TerritorialUnit* territorialUnit) {
+        return territorialUnit->getType() == type;
     });
 }
 

@@ -4,16 +4,17 @@
 #include "../Structures/Models/TerritorialUnit.h"
 #include "../Structures/TerritorialUnitStructure.h"
 #include<functional> 
+#include <libds/amt/explicit_hierarchy.h>
 
 using namespace std;
 
 class Searcher {
 public:
-	static void getTerritorialUnitsByString(TerritorialStructure* territorialUnits, TerritorialStructure* filteredUnits, const function <bool(TerritorialUnit*)>& operation);
+	static void getTerritorialUnitsByString(ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>* territorialUnits, TerritorialStructure* filteredUnits, const function <bool(TerritorialUnit*)>& operation);
 };
 
 void Searcher::getTerritorialUnitsByString(
-	TerritorialStructure* territorialUnits,
+	ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>* territorialUnits,
 	TerritorialStructure* filteredUnits,
 	const function <bool(TerritorialUnit*)>& operation) {
 	

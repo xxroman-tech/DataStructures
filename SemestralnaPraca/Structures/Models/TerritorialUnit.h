@@ -3,20 +3,23 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include "../Enums/TerritorialUnitTypes.h"
 
 using namespace std;
 
 class TerritorialUnit {
 public:
-	TerritorialUnit(const string code, string officialTitle, string mediumTitle, string shortTitle, string note);
+	TerritorialUnit(const string code, string officialTitle, string mediumTitle, string shortTitle, string note, TerritorialUnitType pType);
 	~TerritorialUnit();
 	string getCode();
 	string getOfficialTitle();
 	string getMediumTitle();
 	string getShortTitle();
 	string getNote();
+	TerritorialUnitType getType();
 	string toString();
 private:
+	TerritorialUnitType type;
 	string code;
 	string officialTitle;
 	string mediumTitle;
@@ -24,12 +27,13 @@ private:
 	string note;
 };
 
-TerritorialUnit::TerritorialUnit(const string pCode, string pOfficialTitle, string pMediumTitle, string pShortTitle, string pNote) : 
+TerritorialUnit::TerritorialUnit(const string pCode, string pOfficialTitle, string pMediumTitle, string pShortTitle, string pNote, TerritorialUnitType pType) : 
 	code(pCode),
 	officialTitle(pOfficialTitle),
 	mediumTitle(pMediumTitle),
 	shortTitle(pShortTitle),
-	note(pNote) { }
+	note(pNote),
+	type(pType) { }
 
 TerritorialUnit::~TerritorialUnit() { }
 
@@ -51,6 +55,10 @@ string TerritorialUnit::getShortTitle() {
 
 string TerritorialUnit::getNote() {
 	return this->note;
+}
+
+TerritorialUnitType TerritorialUnit::getType() {
+	return this->type;
 }
 
 string TerritorialUnit::toString() {

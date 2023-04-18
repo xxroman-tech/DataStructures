@@ -237,10 +237,11 @@ namespace ds::amt {
     void ExplicitHierarchy<BlockType>::clear()
 	{
 		// Cvicenie 6 mazeme od najspodnejsej urovne
-		Hierarchy<BlockType>::processPostOrder(this->root_, [&](BlockType* b) {
-			AMS<BlockType>::memoryManager_->releaseMemory(b);
-		});
-		this->root_ = nullptr;
+		Hierarchy<BlockType>::processPostOrder(root_, [&](BlockType* b)
+			{
+				AMS<BlockType>::memoryManager_->releaseMemory(b);
+			});
+		root_ = nullptr;
 	}
 
 	template<typename BlockType>

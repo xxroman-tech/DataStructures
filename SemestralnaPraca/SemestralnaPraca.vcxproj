@@ -105,6 +105,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)\DataStructures\</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -140,6 +141,7 @@
     <ClInclude Include="Cli\cli.h" />
     <ClInclude Include="DataLoader\DataLoader.h" />
     <ClInclude Include="Services\Searcher.h" />
+    <ClInclude Include="Structures\Enums\TerritorialUnitTypes.h" />
     <ClInclude Include="Structures\Models\TerritorialUnit.h" />
     <ClInclude Include="Structures\TerritorialUnitStructure.h" />
   </ItemGroup>
