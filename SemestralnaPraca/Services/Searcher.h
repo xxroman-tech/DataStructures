@@ -10,20 +10,22 @@ using namespace std;
 
 class Searcher {
 public:
-	static void getTerritorialUnitsByString(ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>* territorialUnits, TerritorialStructure* filteredUnits, const function <bool(TerritorialUnit*)>& operation);
+	static void getTerritorialUnitsByString(
+		ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>::PreOrderHierarchyIterator begin,
+		ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>::PreOrderHierarchyIterator end,
+		TerritorialStructure* filteredUnits, 
+		const function <bool(TerritorialUnit*)>& operation);
 };
 
 void Searcher::getTerritorialUnitsByString(
-	ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>* territorialUnits,
+	ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>::PreOrderHierarchyIterator begin,
+	ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>::PreOrderHierarchyIterator end,
 	TerritorialStructure* filteredUnits,
 	const function <bool(TerritorialUnit*)>& operation) {
-	
-	for (TerritorialUnit* unit : *territorialUnits) {
 
-		if (operation(unit)) {
-			filteredUnits->add(unit);
+	for (ds::amt::Hierarchy<ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>>::PreOrderHierarchyIterator it = begin; it != end; ++it) {
+		if (operation(*it)) {
+			filteredUnits->add(*it);
 		}
-
 	}
-
 }

@@ -8,6 +8,42 @@
 // Trieda bude loadovat data do pozadovanych struktur
 // Zatial loaduje len do struktury TerritorialUnitStructure ktora ma vector 
 
+
+class HierarchyIterator {
+public:
+	HierarchyIterator(ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>* pHierarchy, ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>* pPosition);
+	ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>* up();
+	ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>* down(size_t index);
+
+	ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>* getPosition();
+	ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>::PreOrderHierarchyIterator begin();
+private:
+	ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>* position;
+	ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>* hierarchy;
+};
+
+HierarchyIterator::HierarchyIterator(ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>* pHierarchy, ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>* pPosition) :
+	hierarchy(pHierarchy),
+	position(pPosition)
+{ }
+
+ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>* HierarchyIterator::up() {
+	return this->position = this->hierarchy->accessParent(*position);
+}
+
+ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>* HierarchyIterator::down(size_t index) {
+	return this->position = this->hierarchy->accessSon(*position, index - 1);
+}
+
+ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>* HierarchyIterator::getPosition() {
+	return this->position;
+}
+
+ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>::PreOrderHierarchyIterator HierarchyIterator::begin() {
+	return ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>::PreOrderHierarchyIterator(this->hierarchy, this->position); 
+}
+
+
 class App {
 public:
 	App();
@@ -16,12 +52,16 @@ public:
 	void load();
 	TerritorialStructure* getUnits();
 	ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>* getHierarchy();
+	HierarchyIterator* getIterator() { return this->iterator; }
+
+	void vypisMozneCesty();
 private:
 	void loadFromFile(string filePath, TerritorialUnitType type);
 
 	TerritorialStructure* units;
 	TerritorialUnit* sk;
 	ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>* hierarchy;
+	HierarchyIterator* iterator;
 };
 
 App::App() :
@@ -35,6 +75,9 @@ App::App() :
 }
 
 App::~App() {
+	delete iterator;
+	iterator = nullptr;
+
 	delete hierarchy;
 	hierarchy = nullptr;
 
@@ -61,7 +104,7 @@ void App::load() {
 		}
 
 		if (unit->getType() == DISTRICT) {
-			for (auto region : *this->hierarchy->accessRoot()->sons_) {
+			for (ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>* region : *this->hierarchy->accessRoot()->sons_) {
 				if (unit->getCode().substr(0, 5) == region->data_->getCode()) {
 					this->hierarchy->emplaceSon(*region, region->sons_->size()).data_ = unit;
 				}
@@ -69,8 +112,8 @@ void App::load() {
 		}
 
 		if (unit->getType() == MUNICIPALITY) {
-			for (auto region : *this->hierarchy->accessRoot()->sons_) {
-				for (auto district : *region->sons_) {
+			for (ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>* region : *this->hierarchy->accessRoot()->sons_) {
+				for (ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>* district : *region->sons_) {
 					if (unit->getCode().substr(0, 6) == district->data_->getCode()) {
 						this->hierarchy->emplaceSon(*district, district->sons_->size()).data_ = unit;
 					}
@@ -83,6 +126,8 @@ void App::load() {
 	//this->hierarchy->processPreOrder(this->hierarchy->accessRoot(), [&](const ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>* terrUnit) {
 	//	cout << terrUnit->data_->toString() << endl;
 	//});
+
+	this->iterator = new HierarchyIterator(this->hierarchy, this->hierarchy->accessRoot());
 }
 
 TerritorialStructure* App::getUnits() {
@@ -91,6 +136,13 @@ TerritorialStructure* App::getUnits() {
 
 ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>* App::getHierarchy() {
 	return this->hierarchy;
+}
+
+void App::vypisMozneCesty() {
+	size_t index = 1;
+	for (ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>* unit : *this->iterator->getPosition()->sons_) {
+		cout << index++ << ". " << unit->data_->toString() << endl;
+	}
 }
 
 void App::loadFromFile(string filePath, TerritorialUnitType type) {
