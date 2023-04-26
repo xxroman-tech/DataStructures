@@ -59,7 +59,6 @@ private:
 	void loadFromFile(string filePath, TerritorialUnitType type);
 
 	TerritorialStructure* units;
-	TerritorialUnit* sk;
 	ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>* hierarchy;
 	HierarchyIterator* iterator;
 };
@@ -69,20 +68,16 @@ App::App() :
 {
 	this->hierarchy = new ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>();
 
-	this->sk = new TerritorialUnit("SK", "Slovenská republika", "", "SR", "", STATE);
-
-	this->hierarchy->emplaceRoot().data_ = this->sk;
+	this->hierarchy->emplaceRoot().data_ = new TerritorialUnit("SK", "Slovenská republika", "", "SR", "", STATE);
 }
 
 App::~App() {
 	delete iterator;
 	iterator = nullptr;
 
+	delete hierarchy->accessRoot()->data_;
 	delete hierarchy;
 	hierarchy = nullptr;
-
-	delete this->sk;
-	this->sk = nullptr;
 
 	for (TerritorialUnit* unit : *units) {
 		delete unit;
