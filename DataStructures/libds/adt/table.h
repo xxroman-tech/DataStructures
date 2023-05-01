@@ -310,9 +310,13 @@ namespace ds::adt {
     template<typename K, typename T, typename SequenceType>
     bool SequenceTable<K, T, SequenceType>::tryFind(K key, T*& data)
     {
-        // TODO 10
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        // Cvicenie 10
+        BlockType* blockWithKey = this->findBlockWithKey();
+        if (blockWithKey == nullptr) {
+            return false;
+        }
+        data = &blockWithKey->data_.data; // skopirujem si data na adresu ktoru poslem
+        return true;
     }
 
     template <typename K, typename T, typename SequenceType>
@@ -338,9 +342,10 @@ namespace ds::adt {
     template<typename K, typename T, typename SequenceType>
     typename SequenceType::BlockType* UnsortedSequenceTable<K, T, SequenceType>::findBlockWithKey(K key)
     {
-        // TODO 10
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        // Cvicnie 10
+        return this->getSequence()->findBlockWithProperty([&key](typename SequenceType::BlockType* b) {
+            return b->data_.key == key;
+        });
     }
 
     //----------
@@ -348,17 +353,35 @@ namespace ds::adt {
     template<typename K, typename T>
     void UnsortedImplicitSequenceTable<K, T>::insert(K key, T data)
     {
-        // TODO 10
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        // Cvicenie 10
+        if (this->contains(key)) {
+            this->error("Table already contains elemtn associated with given key!");
+        }
+
+        TableItem<K, T>& tableItem = this->getSequence()->insertLast().data_;
+        tableItem.key_ = key;
+        tableItem.data_ = data;
     }
 
     template<typename K, typename T>
     T UnsortedImplicitSequenceTable<K, T>::remove(K key)
     {
-        // TODO 10
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        // Cvicenie 10
+        BlockType* blockWithKey = this->findBlockWithKey(key);
+
+        if (blockWithKey == nullptr) {
+            this->error("No such key!");
+        }
+
+        T result = blockWithKey->data_.data;
+        BlockType* lastBlock = this->getSequence()->accessLast();
+
+        if (blockWithKey != lastBlock) {
+            std::swap(blockWithKey->data_, lastBlock->data_);
+        }
+        this->getSequence()->removeLast();
+
+        return result;
     }
 
     //----------
@@ -366,17 +389,35 @@ namespace ds::adt {
     template<typename K, typename T>
     void UnsortedExplicitSequenceTable<K, T>::insert(K key, T data)
     {
-        // TODO 10
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        // Cvicenie 10
+        if (this->contains(key)) {
+            this->error("Table already contains elemtn associated with given key!");
+        }
+
+        TableItem<K, T>& tableItem = this->getSequence()->insertFirst().data_; // vkladam odpredu pretoze mam lepsiu zlozitost
+        tableItem.key_ = key;
+        tableItem.data_ = data;
     }
 
     template<typename K, typename T>
     T UnsortedExplicitSequenceTable<K, T>::remove(K key)
     {
-        // TODO 10
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        // Cvicenie 10
+        BlockType* blockWithKey = this->findBlockWithKey(key);
+
+        if (blockWithKey == nullptr) {
+            this->error("No such key!");
+        }
+
+        T result = blockWithKey->data_.data;
+        BlockType* firstBlock = this->getSequence()->accessFirst();
+
+        if (blockWithKey != firstBlock) {
+            std::swap(blockWithKey->data_, firstBlock->data_);
+        }
+        this->getSequence()->removeFirst();
+
+        return result;
     }
 
     //----------
@@ -384,17 +425,44 @@ namespace ds::adt {
     template<typename K, typename T>
     void SortedSequenceTable<K, T>::insert(K key, T data)
     {
-        // TODO 10
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        // Cvicenie 10 Pridaj O(1) , utriedenie O(n log_2 n) ale log n nechceme takze binarne vyhladavanie ma lepsiu zlozitost
+        TableItem<K, T>* tableItem;
+
+        if (this->isEmpty()) {
+            tableItem = &this->getSequence()->insertFirst().data_;
+        }
+        else {
+            BlockType* block = nullptr;
+            if (this->tryFindBlockWithKey(key, 0, this->size(), block)) {
+                this->error("Table already contains element associated with given key!");
+            }
+            tableItem = key > block->data_.key
+                ? &this->getSequence()->insertAfter(*block).data_
+                : &this->getSequence()->insertBefore(*block).data_;
+        }
+
+        tableItem->key_ = key;
+        tableItem->data_ = data;
     }
 
     template<typename K, typename T>
     T SortedSequenceTable<K, T>::remove(K key)
     {
-        // TODO 10
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        // Cvicenice 10
+        BlockType* blockWithKey = nullptr;
+        if (this->tryFindBlockWithKey(key, 0, this->size(), blockWithKey)) {
+            this->error("No such key!");
+        }
+
+        T result = blockWithKey->data_.data;
+        if (this->getSequence()->accessFirst() == blockWithKey) {
+            this->getSequence()->removeFirst();
+        }
+        else {
+            this->getSequence()->removeNext(*this->getSequence()->accessPrevious(*blockWithKey));
+        }
+
+        return result;
     }
 
     template<typename K, typename T>
@@ -407,9 +475,28 @@ namespace ds::adt {
     template<typename K, typename T>
     bool SortedSequenceTable<K, T>::tryFindBlockWithKey(K key, size_t firstIndex, size_t lastIndex, BlockType*& lastBlock)
     {
-        // TODO 10
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        // Cvicenie 10
+        if (this->isEmpty()) {
+            lastBlock = nullptr;
+            return false;
+        }
+
+        size_t midIndex = firstIndex;
+
+        while (firstIndex < lastIndex) { // koniec nemam kam delit
+            midIndex = firstIndex + (lastIndex - firstIndex) / 2; // log pri zaklade 2 pretoze delim dvoma
+            lastBlock = this->getSequence()->access(midIndex);
+
+            if (lastBlock->data_.key_ < key)
+                firstIndex = midIndex + 1;
+            else if (lastBlock->data_.key_ > key)
+                lastIndex = midIndex;
+            else // koniec lebo nemam kam 
+                break;
+        }
+
+        lastBlock = this->getSequence()->access(midIndex);
+        return lastBlock->data_.key_ == key;
     }
 
     //----------
