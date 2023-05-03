@@ -1,7 +1,7 @@
 #pragma once
 
 #include <libds/adt/abstract_data_type.h>
-#include <libds/amt/implicit_hierarchy.h>
+#include <libds/amt/implicit_sequence.h>
 #include <libds/amt/explicit_sequence.h>
 
 namespace ds::adt {
@@ -71,16 +71,15 @@ namespace ds::adt {
     template<typename T>
     void ImplicitStack<T>::push(T element)
     {
-        // Cvicenie 09
         this->getSequence()->insertLast().data_ = element;
     }
 
     template<typename T>
     T& ImplicitStack<T>::peek()
     {
-        // Cvicenie 09
-        if (this->isEmpty()) {
-            this->error("Stack is empty!");
+        if (this->isEmpty())
+        {
+            throw std::out_of_range("Stack is empty!");
         }
 
         return this->getSequence()->accessLast()->data_;
@@ -89,9 +88,9 @@ namespace ds::adt {
     template<typename T>
     T ImplicitStack<T>::pop()
     {
-        // Cvicenie 09
-        if (this->isEmpty()) {
-            this->error("Stack is empty!");
+        if (this->isEmpty())
+        {
+            throw std::out_of_range("Stack is empty!");
         }
 
         T result = this->getSequence()->accessLast()->data_;
@@ -120,16 +119,15 @@ namespace ds::adt {
     template<typename T>
     void ExplicitStack<T>::push(T element)
     {
-        // Cvicenie 09
-        this->getSequence()->insertLast().data_ = element;
+        this->getSequence()->insertFirst().data_ = element;
     }
 
     template<typename T>
     T& ExplicitStack<T>::peek()
     {
-        // Cvicenie 09
-        if (this->isEmpty()) {
-            this->error("Stack is empty!");
+        if (this->isEmpty())
+        {
+            throw std::out_of_range("Stack is empty!");
         }
 
         return this->getSequence()->accessFirst()->data_;
@@ -138,13 +136,13 @@ namespace ds::adt {
     template<typename T>
     T ExplicitStack<T>::pop()
     {
-        // Cvicenie 09
-        if (this->isEmpty()) {
-            this->error("Stack is empty!");
+        if (this->isEmpty())
+        {
+            throw std::out_of_range("Stack is empty!");
         }
 
         T result = this->getSequence()->accessFirst()->data_;
-        this->getSequence()->removeLast();
+        this->getSequence()->removeFirst();
         return result;
     }
 
