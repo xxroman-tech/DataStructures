@@ -118,7 +118,7 @@ namespace ds::adt {
         void insert(K key, T data) override;
         T remove(K key) override;
 
-    protected:
+    public:
         using BlockType = typename amt::IS<TabItem<K, T>>::BlockType;
 
         BlockType* findBlockWithKey(K key) override;
@@ -203,7 +203,7 @@ namespace ds::adt {
         public ADS<TabItem<K, T>>
     {
     public:
-        using IteratorType = amt::BinaryEH<BlockType>;
+        using IteratorType = typename amt::BinaryEH<BlockType>::IteratorType;
 
     public:
         GeneralBinarySearchTree();
@@ -212,6 +212,7 @@ namespace ds::adt {
 
         size_t size() const override;
         bool isEmpty() const override;
+        void clear() override;
 
         void insert(K key, T data) override;
         bool tryFind(K key, T*& data) override;
@@ -250,7 +251,7 @@ namespace ds::adt {
     //----------
 
     template <typename K, typename T>
-    struct TreapItem:
+    struct TreapItem :
         public TabItem<K, T>
     {
         int priority_;
@@ -310,12 +311,12 @@ namespace ds::adt {
     template<typename K, typename T, typename SequenceType>
     bool SequenceTable<K, T, SequenceType>::tryFind(K key, T*& data)
     {
-        // Cvicenie 10
         BlockType* blockWithKey = this->findBlockWithKey(key);
-        if (blockWithKey == nullptr) {
+        if (blockWithKey == nullptr)
+        {
             return false;
         }
-        data = &blockWithKey->data_.data_; // skopirujem si data na adresu ktoru poslem
+        data = &blockWithKey->data_.data_;
         return true;
     }
 
@@ -342,10 +343,10 @@ namespace ds::adt {
     template<typename K, typename T, typename SequenceType>
     typename SequenceType::BlockType* UnsortedSequenceTable<K, T, SequenceType>::findBlockWithKey(K key)
     {
-        // Cvicnie 10
-        return this->getSequence()->findBlockWithProperty([&key](typename SequenceType::BlockType* b) {
-            return b->data_.key_ == key;
-        });
+        return this->getSequence()->findBlockWithProperty([&key](typename SequenceTable::BlockType* b) ->bool
+            {
+                return b->data_.key_ == key;
+            });
     }
 
     //----------
@@ -353,12 +354,11 @@ namespace ds::adt {
     template<typename K, typename T>
     void UnsortedImplicitSequenceTable<K, T>::insert(K key, T data)
     {
-        // Cvicenie 10
-        if (this->contains(key)) {
-            this->error("Table already contains elemtn associated with given key!");
+        if (this->contains(key))
+        {
+            this->error("Table already contains element associated with given key!");
         }
-
-        TableItem<K, T>& tableItem = this->getSequence()->insertLast().data_;
+        ds::adt::TabItem<K, T>& tableItem = this->getSequence()->insertLast().data_;
         tableItem.key_ = key;
         tableItem.data_ = data;
     }
@@ -366,21 +366,20 @@ namespace ds::adt {
     template<typename K, typename T>
     T UnsortedImplicitSequenceTable<K, T>::remove(K key)
     {
-        // Cvicenie 10
         BlockType* blockWithKey = this->findBlockWithKey(key);
 
-        if (blockWithKey == nullptr) {
+        if (blockWithKey == nullptr)
+        {
             this->error("No such key!");
         }
 
         T result = blockWithKey->data_.data_;
         BlockType* lastBlock = this->getSequence()->accessLast();
-
-        if (blockWithKey != lastBlock) {
+        if (blockWithKey != lastBlock)
+        {
             std::swap(blockWithKey->data_, lastBlock->data_);
         }
         this->getSequence()->removeLast();
-
         return result;
     }
 
@@ -389,12 +388,11 @@ namespace ds::adt {
     template<typename K, typename T>
     void UnsortedExplicitSequenceTable<K, T>::insert(K key, T data)
     {
-        // Cvicenie 10
-        if (this->contains(key)) {
-            this->error("Table already contains elemtn associated with given key!");
+        if (this->contains(key))
+        {
+            this->error("Table already contains element associated with given key!");
         }
-
-        TableItem<K, T>& tableItem = this->getSequence()->insertFirst().data_; // vkladam odpredu pretoze mam lepsiu zlozitost
+        TabItem<K, T>& tableItem = this->getSequence()->insertFirst().data_;
         tableItem.key_ = key;
         tableItem.data_ = data;
     }
@@ -402,21 +400,19 @@ namespace ds::adt {
     template<typename K, typename T>
     T UnsortedExplicitSequenceTable<K, T>::remove(K key)
     {
-        // Cvicenie 10
         BlockType* blockWithKey = this->findBlockWithKey(key);
 
-        if (blockWithKey == nullptr) {
+        if (blockWithKey == nullptr)
+        {
             this->error("No such key!");
         }
-
         T result = blockWithKey->data_.data_;
         BlockType* firstBlock = this->getSequence()->accessFirst();
-
-        if (blockWithKey != firstBlock) {
+        if (blockWithKey != firstBlock)
+        {
             std::swap(blockWithKey->data_, firstBlock->data_);
         }
         this->getSequence()->removeFirst();
-
         return result;
     }
 
@@ -425,15 +421,17 @@ namespace ds::adt {
     template<typename K, typename T>
     void SortedSequenceTable<K, T>::insert(K key, T data)
     {
-        // Cvicenie 10 Pridaj O(1) , utriedenie O(n log_2 n) ale log n nechceme takze binarne vyhladavanie ma lepsiu zlozitost
-        TableItem<K, T>* tableItem;
+        TabItem<K, T>* tableItem;
 
-        if (this->isEmpty()) {
+        if (this->isEmpty())
+        {
             tableItem = &this->getSequence()->insertFirst().data_;
         }
-        else {
+        else
+        {
             BlockType* block = nullptr;
-            if (this->tryFindBlockWithKey(key, 0, this->size(), block)) {
+            if (this->tryFindBlockWithKey(key, 0, this->size(), block))
+            {
                 this->error("Table already contains element associated with given key!");
             }
             tableItem = key > block->data_.key_
@@ -448,20 +446,21 @@ namespace ds::adt {
     template<typename K, typename T>
     T SortedSequenceTable<K, T>::remove(K key)
     {
-        // Cvicenice 10
         BlockType* blockWithKey = nullptr;
-        if (this->tryFindBlockWithKey(key, 0, this->size(), blockWithKey)) {
+        if (!this->tryFindBlockWithKey(key, 0, this->size(), blockWithKey))
+        {
             this->error("No such key!");
         }
 
         T result = blockWithKey->data_.data_;
-        if (this->getSequence()->accessFirst() == blockWithKey) {
+        if (this->getSequence()->accessFirst() == blockWithKey)
+        {
             this->getSequence()->removeFirst();
         }
-        else {
+        else
+        {
             this->getSequence()->removeNext(*this->getSequence()->accessPrevious(*blockWithKey));
         }
-
         return result;
     }
 
@@ -475,24 +474,30 @@ namespace ds::adt {
     template<typename K, typename T>
     bool SortedSequenceTable<K, T>::tryFindBlockWithKey(K key, size_t firstIndex, size_t lastIndex, BlockType*& lastBlock)
     {
-        // Cvicenie 10
-        if (this->isEmpty()) {
+        if (this->isEmpty())
+        {
             lastBlock = nullptr;
             return false;
         }
 
         size_t midIndex = firstIndex;
-
-        while (firstIndex < lastIndex) { // koniec nemam kam delit
-            midIndex = firstIndex + (lastIndex - firstIndex) / 2; // log pri zaklade 2 pretoze delim dvoma
+        while (firstIndex < lastIndex)
+        {
+            midIndex = firstIndex + (lastIndex - firstIndex) / 2;
             lastBlock = this->getSequence()->access(midIndex);
 
             if (lastBlock->data_.key_ < key)
+            {
                 firstIndex = midIndex + 1;
+            }
             else if (lastBlock->data_.key_ > key)
+            {
                 lastIndex = midIndex;
-            else // koniec lebo nemam kam 
+            }
+            else
+            {
                 break;
+            }
         }
 
         lastBlock = this->getSequence()->access(midIndex);
@@ -591,53 +596,52 @@ namespace ds::adt {
     template <typename K, typename T>
     void HashTable<K, T>::insert(K key, T data)
     {
-        // Cvicenie 11
-        size_t index = hashFunction_(key) % primaryRegion_->size();
+        const size_t index = hashFunction_(key) % primaryRegion_->size();
         SynonymTable* synonyms = primaryRegion_->access(index)->data_;
-
-        if (synonyms == nullptr) {
+        if (synonyms == nullptr)
+        {
             synonyms = new SynonymTable();
             primaryRegion_->access(index)->data_ = synonyms;
         }
         synonyms->insert(key, data);
-        size_++;
+        ++size_;
     }
 
     template <typename K, typename T>
     bool HashTable<K, T>::tryFind(K key, T*& data)
     {
-        // Cvicenie 11
-        size_t index = hashFunction_(key) % primaryRegion_->size();
+        const size_t index = hashFunction_(key) % primaryRegion_->size();
         SynonymTable* synonyms = primaryRegion_->access(index)->data_;
-        
         if (synonyms == nullptr)
+        {
             return false;
-
+        }
         return synonyms->tryFind(key, data);
     }
 
     template <typename K, typename T>
     T HashTable<K, T>::remove(K key)
     {
-        // Cvicenie 11
-        size_t index = hashFunction_(key) % primaryRegion_->size();
+        const size_t index = hashFunction_(key) % primaryRegion_->size();
         SynonymTable* synonyms = primaryRegion_->access(index)->data_;
-
         if (synonyms == nullptr)
-            this->error("Table does not have data with this key!");
-        
-        T prvok = synonyms->remove(key);
-        if (synonyms->isEmpty()) {
+        {
+            this->error("No such key!");
+        }
+
+        T element = synonyms->remove(key);
+        if (synonyms->isEmpty())
+        {
             delete synonyms;
             primaryRegion_->access(index)->data_ = nullptr;
         }
-        size_--;
-        return prvok;
+        --size_;
+        return element;
     }
 
     template <typename K, typename T>
     HashTable<K, T>::HashTableIterator::HashTableIterator
-        (PrimaryRegionIterator* tablesFirst, PrimaryRegionIterator* tablesLast) :
+    (PrimaryRegionIterator* tablesFirst, PrimaryRegionIterator* tablesLast) :
         tablesCurrent_(tablesFirst),
         tablesLast_(tablesLast)
     {
@@ -652,7 +656,7 @@ namespace ds::adt {
 
     template <typename K, typename T>
     HashTable<K, T>::HashTableIterator::HashTableIterator
-        (const HashTableIterator& other) :
+    (const HashTableIterator& other) :
         tablesCurrent_(other.tablesCurrent_),
         tablesLast_(other.tablesLast_),
         synonymIterator_(other.synonymIterator_)
@@ -670,22 +674,23 @@ namespace ds::adt {
     template <typename K, typename T>
     auto HashTable<K, T>::HashTableIterator::operator++() -> HashTableIterator&
     {
-        // Cvicenie 11
-        /*synonymIterator_++;
-        
-        if (!synonymIterator_->hasNext()) {
-            do {
-                PrimaryRegionIterator::++;
-            } while (PrimaryRegionIterator::next && PrimaryRegionIterator::* = nullptr);
+        ++(*synonymIterator_);
+        if (*synonymIterator_ == (**tablesCurrent_)->end())
+        {
+            do
+            {
+                ++(*tablesCurrent_);
+            } while (*tablesCurrent_ != *tablesLast_ && **tablesCurrent_ == nullptr);
 
             delete synonymIterator_;
             synonymIterator_ = nullptr;
 
-            if (PrimaryRegionIterator::next)
-                synonymIterator_ = PrimaryRegionIterator::*;
-
-        }*/
-        throw std::runtime_error("Not implemented yet");
+            if (*tablesCurrent_ != *tablesLast_)
+            {
+                synonymIterator_ = new SynonymTableIterator((**tablesCurrent_)->begin());
+            }
+        }
+        return *this;
     }
 
     template <typename K, typename T>
@@ -700,9 +705,9 @@ namespace ds::adt {
     bool HashTable<K, T>::HashTableIterator::operator==(const HashTableIterator& other) const
     {
         return synonymIterator_ == other.synonymIterator_ ||
-                 (synonymIterator_ != nullptr &&
-                   other.synonymIterator_ != nullptr &&
-                   *synonymIterator_ == *(other.synonymIterator_));
+            (synonymIterator_ != nullptr &&
+                other.synonymIterator_ != nullptr &&
+                *synonymIterator_ == *(other.synonymIterator_));
     }
 
     template <typename K, typename T>
@@ -738,14 +743,14 @@ namespace ds::adt {
     }
 
     template<typename K, typename T, typename BlockType>
-    GeneralBinarySearchTree<K, T, BlockType>::GeneralBinarySearchTree():
+    GeneralBinarySearchTree<K, T, BlockType>::GeneralBinarySearchTree() :
         ADS<TabItem<K, T>>(new amt::BinaryEH<BlockType>()),
         size_(0)
     {
     }
 
     template<typename K, typename T, typename BlockType>
-    GeneralBinarySearchTree<K, T, BlockType>::GeneralBinarySearchTree(const GeneralBinarySearchTree& other):
+    GeneralBinarySearchTree<K, T, BlockType>::GeneralBinarySearchTree(const GeneralBinarySearchTree& other) :
         ADS<TabItem<K, T>>(new amt::BinaryEH<BlockType>(), other),
         size_(other.size_)
     {
@@ -770,21 +775,33 @@ namespace ds::adt {
     }
 
     template<typename K, typename T, typename BlockType>
+    inline void GeneralBinarySearchTree<K, T, BlockType>::clear()
+    {
+        ADS<TabItem<K, T>>::clear();
+        size_ = 0;
+    }
+
+    template<typename K, typename T, typename BlockType>
     void GeneralBinarySearchTree<K, T, BlockType>::insert(K key, T data)
     {
-        // Cvicenie 11
         BVSNodeType* newNode = nullptr;
-
         if (this->isEmpty())
+        {
             newNode = &this->getHierarchy()->emplaceRoot();
-        else {
+        }
+        else
+        {
             BVSNodeType* nodeInRelation = this->findNodeWithRelation(key);
             if (nodeInRelation->data_.key_ == key)
-                this->error("Table already contains data with that key!");
+            {
+                this->error("Table already contains element associated with given key!");
+            }
             newNode = &this->insertNode(key, nodeInRelation);
         }
+
         newNode->data_.key_ = key;
         newNode->data_.data_ = data;
+
         size_++;
         this->balanceTree(newNode);
     }
@@ -792,10 +809,11 @@ namespace ds::adt {
     template<typename K, typename T, typename BlockType>
     bool GeneralBinarySearchTree<K, T, BlockType>::tryFind(K key, T*& data)
     {
-        // Cvicenie 11
         BVSNodeType* nodeWithKey = nullptr;
-        if (!tryFindNodeWithKey(key, nodeWithKey))
+        if (!this->tryFindNodeWithKey(key, nodeWithKey))
+        {
             return false;
+        }
         data = &nodeWithKey->data_.data_;
         return true;
     }
@@ -803,14 +821,16 @@ namespace ds::adt {
     template<typename K, typename T, typename BlockType>
     T GeneralBinarySearchTree<K, T, BlockType>::remove(K key)
     {
-        // Cvicenie 11
         BVSNodeType* nodeWithKey = nullptr;
-        if (!tryFindNodeWithKey(key, nodeWithKey))
-            this->error("Table doesnt have data with that key!");
-        T data = nodeWithKey->data_.data_;
+        if (!this->tryFindNodeWithKey(key, nodeWithKey))
+        {
+            this->error("No such key!");
+        }
+
+        T result = nodeWithKey->data_.data_;
         this->removeNode(nodeWithKey);
         size_--;
-        return data;
+        return result;
     }
 
     template <typename K, typename T, typename BlockType>
@@ -850,127 +870,171 @@ namespace ds::adt {
     template<typename K, typename T, typename BlockType>
     void GeneralBinarySearchTree<K, T, BlockType>::removeNode(BVSNodeType* node)
     {
-        // Cvicenie 11
-        BVSNodeType* parent = node->parent_;
+        BVSNodeType* parent = static_cast<BVSNodeType*>(node->parent_);
 
-        switch(this->getHierarchy()->degree(*node)) {
-            case 0:
-                if (this->getHierarchy()->isRoot(*node))
-                    this->getHierarchy()->clear();
-                else {
-                    if (this->getHierarchy()->isLeftSon(*node))
-                        this->getHierarchy()->removeLeftSon(*parent);
-                    else
-                        this->getHierarchy()->removeRightSon(*parent);
+        switch (this->getHierarchy()->degree(*node))
+        {
+        case 0:
+        {
+            if (this->getHierarchy()->isRoot(*node))
+            {
+                this->getHierarchy()->clear();
+            }
+            else
+            {
+                if (this->getHierarchy()->isLeftSon(*node))
+                {
+                    this->getHierarchy()->removeLeftSon(*parent);
                 }
-                break;
-            case 1:
-                BVSNodeType* son = this->getHierarchy()->hasLeftSon(*node) ? node->left_ : node->right_;
-
-                if (node->left_ = son)
-                    this->getHierarchy()->changeLeftSon(*node, nullptr);
                 else
-                    this->getHierarchy()->changeRightSon(*node, nullptr);
-
-                if (this->getHierarchy()->isRoot(*node)) {
-                    this->getHierarchy()->clear();
-                    this->getHierarchy()->changeRoot(son);
-                } 
-                else {
-                    if (parent->left_ = node) {
-                        this->getHierarchy()->removeLeftSon(*parent);
-                        this->getHierarchy()->changeLeftSon(*parent, son);
-                    }
-                    else {
-                        this->getHierarchy()->removeRightSon(*parent);
-                        parent->right_ = son;
-                        this->getHierarchy()->changeRightSon(*parent, son);
-                    }
+                {
+                    this->getHierarchy()->removeRightSon(*parent);
                 }
-                break;
-            case 2:
-                BVSNodeType* predchodcaVPoradi = node->left_;
+            }
+            break;
+        }
 
-                while (this->getHierarchy()->hasRightSon(*predchodcaVPoradi))
-                    predchodcaVPoradi = predchodcaVPoradi->right_;
+        case 1:
+        {
+            BVSNodeType* son = this->getHierarchy()->hasLeftSon(*node) ? node->left_ : node->right_;
 
-                std::swap(node->data_, predchodcaVPoradi->data_);
-                this->removeNode(predchodcaVPoradi);
-                break;
+            if (node->left_ == son)
+            {
+                this->getHierarchy()->changeLeftSon(*node, nullptr);
+            }
+            else
+            {
+                this->getHierarchy()->changeRightSon(*node, nullptr);
+            }
+
+            if (this->getHierarchy()->isRoot(*node))
+            {
+                this->getHierarchy()->clear();
+                this->getHierarchy()->changeRoot(son);
+            }
+            else
+            {
+                if (parent->left_ == node)
+                {
+                    this->getHierarchy()->removeLeftSon(*parent);
+                    this->getHierarchy()->changeLeftSon(*parent, son);
+                }
+                else
+                {
+                    this->getHierarchy()->removeRightSon(*parent);
+                    parent->right_ = son;
+                    this->getHierarchy()->changeRightSon(*parent, son);
+                }
+            }
+            break;
+        }
+
+        case 2:
+        {
+            BVSNodeType* inOrderPredecessor = node->left_;
+            while (this->getHierarchy()->hasRightSon(*inOrderPredecessor))
+            {
+                inOrderPredecessor = inOrderPredecessor->right_;
+            }
+            using std::swap;
+            swap(node->data_, inOrderPredecessor->data_);
+            this->removeNode(inOrderPredecessor);
+            break;
+        }
         }
     }
 
     template<typename K, typename T, typename BlockType>
     bool GeneralBinarySearchTree<K, T, BlockType>::tryFindNodeWithKey(K key, BVSNodeType*& node) const
     {
-        // Cvicenie 11
         if (this->isEmpty())
+        {
             return false;
+        }
 
         node = this->getHierarchy()->accessRoot();
-
-        while (node->data_.key_ != key && this->getHierarchy()->isLeaf(*node)) {
-            if (key < node->data_.key_) {
-                if (node->left_)
+        while (node->data_.key_ != key && !this->getHierarchy()->isLeaf(*node))
+        {
+            if (key < node->data_.key_)
+            {
+                if (node->left_ != nullptr)
+                {
                     node = node->left_;
+                }
                 else
+                {
                     return false;
+                }
             }
-            else {
-                if (node->right_)
+            else
+            {
+                if (node->right_ != nullptr)
+                {
                     node = node->right_;
+                }
                 else
+                {
                     return false;
+                }
             }
         }
-        
-        return node->data_.key_ = key;
+
+        return node->data_.key_ == key;
     }
 
     template<typename K, typename T, typename BlockType>
     void GeneralBinarySearchTree<K, T, BlockType>::rotateLeft(BVSNodeType* node)
     {
-        // Cvicenie 11
         BVSNodeType* leftSon = node->left_;
-        BVSNodeType* parent = node->parent_;
-        BVSNodeType* preParent = parent->parent_;
-        
+        BVSNodeType* parent = static_cast<BVSNodeType*>(node->parent_);
+        BVSNodeType* grandParent = static_cast<BVSNodeType*>(parent->parent_);
+
         this->getHierarchy()->changeRightSon(*parent, nullptr);
         this->getHierarchy()->changeLeftSon(*node, nullptr);
 
-        if (preParent != nullptr) {
-            if (preParent->left_ == parent)
-                this->getHierarchy()->changeLeftSon(*preParent, node);
+        if (grandParent != nullptr)
+        {
+            if (grandParent->left_ == parent)
+            {
+                this->getHierarchy()->changeLeftSon(*grandParent, node);
+            }
             else
-                this->getHierarchy()->changeRightSon(*preParent, node);
+            {
+                this->getHierarchy()->changeRightSon(*grandParent, node);
+            }
         }
-        else {
+        else
+        {
             this->getHierarchy()->changeRoot(node);
         }
 
         this->getHierarchy()->changeRightSon(*parent, leftSon);
         this->getHierarchy()->changeLeftSon(*node, parent);
-
     }
 
     template<typename K, typename T, typename BlockType>
     void GeneralBinarySearchTree<K, T, BlockType>::rotateRight(BVSNodeType* node)
     {
-        // Cvicenie 11
         BVSNodeType* rightSon = node->right_;
-        BVSNodeType* parent = node->parent_;
-        BVSNodeType* preParent = parent->parent_;
+        BVSNodeType* parent = static_cast<BVSNodeType*>(node->parent_);
+        BVSNodeType* grandParent = static_cast<BVSNodeType*>(parent->parent_);
 
         this->getHierarchy()->changeLeftSon(*parent, nullptr);
         this->getHierarchy()->changeRightSon(*node, nullptr);
 
-        if (preParent != nullptr) {
-            if (preParent->left_ == parent)
-                this->getHierarchy()->changeLeftSon(*preParent, node);
+        if (grandParent != nullptr)
+        {
+            if (grandParent->left_ == parent)
+            {
+                this->getHierarchy()->changeLeftSon(*grandParent, node);
+            }
             else
-                this->getHierarchy()->changeRightSon(*preParent, node);
+            {
+                this->getHierarchy()->changeRightSon(*grandParent, node);
+            }
         }
-        else {
+        else
+        {
             this->getHierarchy()->changeRoot(node);
         }
 
@@ -981,7 +1045,7 @@ namespace ds::adt {
     //----------
 
     template<typename K, typename T>
-    Treap<K, T>::Treap():
+    Treap<K, T>::Treap() :
         rng_(std::rand())
     {
     }
@@ -989,25 +1053,41 @@ namespace ds::adt {
     template<typename K, typename T>
     void Treap<K, T>::removeNode(BVSNodeType* node)
     {
-        // Cvicenie 11 - malo byt na doma
-        //node->data_.priority_ = rng_.min();
-        
-        while (this->getHierarchy()->degree(*node) == 2) {
+        node->data_.priority_ = reinterpret_cast<unsigned int>(rng_.max);
+        while (this->getHierarchy()->degree(*node) == 2)
+        {
             BVSNodeType* leftSon = node->left_;
             BVSNodeType* rightSon = node->right_;
-            
+
             if (leftSon->data_.priority_ < rightSon->data_.priority_)
+            {
                 this->rotateRight(leftSon);
+            }
             else
+            {
                 this->rotateLeft(rightSon);
+            }
         }
-        GeneralBinarySearchTree::removeNode(node);
+
+        GeneralBinarySearchTree<K, T, TreapItem<K, T>>::removeNode(node);
     }
 
     template<typename K, typename T>
     void Treap<K, T>::balanceTree(BVSNodeType* node)
     {
-        // Cvicenie 11 - malo byt na doma
-        //node->data_.priority_ = rn
+        node->data_.priority_ = rng_();
+        BVSNodeType* parent = static_cast<BVSNodeType*>(node->parent_);
+        while (parent != nullptr && parent->data_.priority_ > node->data_.priority_)
+        {
+            if (parent->left_ == node)
+            {
+                this->rotateRight(node);
+            }
+            else
+            {
+                this->rotateLeft(node);
+            }
+            parent = static_cast<BVSNodeType*>(node->parent_);
+        }
     }
 }

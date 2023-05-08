@@ -482,7 +482,7 @@ namespace ds::adt {
     void TwoLists<P, T>::push(P priority, T data)
     {
         // Cvicenie 09 - doma
-      PriorityQueueItem<P, T>* queueData = nullptr;
+        PriorityQueueItem<P, T>* queueData = nullptr;
         if ((longSequence_->size() == 0 && !shortSequence_->isEmpty()) || shortSequence_->accessFirst()->data_.priority_ > priority) {
             if (shortSequence_->size() == shortSequence_->getCapacity()) {
                 ShortSequenceBlockType* shortBlock = shortSequence_->accessFirst();
