@@ -8,24 +8,47 @@
 
 using namespace std;
 
+template<typename T, typename BlockType>
 class Searcher {
 public:
 	static void getTerritorialUnitsByString(
-		ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>::PreOrderHierarchyIterator begin,
-		ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>::PreOrderHierarchyIterator end,
-		TerritorialStructure* filteredUnits, 
+		T begin, T end,
+		TerritorialStructure* filteredUnits,
 		const function <bool(TerritorialUnit*)>& operation);
+
+	static void getTerritorialUnitsFromTable(
+		ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>* list, 
+		TerritorialStructure* filteredUnits, 
+		string officialTitle);
 };
 
-void Searcher::getTerritorialUnitsByString(
-	ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>::PreOrderHierarchyIterator begin,
-	ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>::PreOrderHierarchyIterator end,
+template<typename T, typename BlockType>
+void Searcher<T, BlockType>::getTerritorialUnitsByString(
+	T begin, T end,
 	TerritorialStructure* filteredUnits,
 	const function <bool(TerritorialUnit*)>& operation) {
 
-	for (ds::amt::Hierarchy<ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>>::PreOrderHierarchyIterator it = begin; it != end; ++it) {
+	for (BlockType it = begin; it != end; ++it) {
 		if (operation(*it)) {
 			filteredUnits->add(*it);
 		}
+	}
+}
+
+template<typename T, typename BlockType>
+void Searcher<T, BlockType>::getTerritorialUnitsFromTable(
+	ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>* list,
+	TerritorialStructure* filteredUnits,
+	string officialTitle) {
+
+	ds::adt::ImplicitList<TerritorialUnit*>* list2 = nullptr;
+	ds::adt::ImplicitList<TerritorialUnit*>** data = &list2;
+	
+	if (!list->tryFind(officialTitle, data)) {
+		return;
+	}
+
+	for (auto unit : **data) {
+		filteredUnits->add(unit);
 	}
 }

@@ -8,11 +8,15 @@
 #include <libds/heap_monitor.h>
 #include "Structures/Enums/TerritorialUnitTypes.h"
 
+void mainMenu();
+void vyhladavanieVHierarchii();
 void vyhladavanie();
+void vyhladanieVTabulkach();
 void findInformation(int s);
 void startsWith(string vstup);
 void contains(string vstup);
 void hasType(TerritorialUnitType type);
+void hasTypeTabulky(TerritorialUnitType type, string text);
 void coutToConsole();
 
 void vypisAktPoziciu();
@@ -30,6 +34,48 @@ int main()
     app->load();
     cout << "Data sa nacitali!" << endl;
 
+    mainMenu();
+    
+    delete app;
+    return 0;
+
+}
+
+void mainMenu() {
+    int vstupMenu = -1;
+
+    while (vstupMenu != 0) {
+        cout << "Zvolte typ vyhladavania:" << endl;
+        cout << "  1. Vyhladavanie v Tabulkach" << endl;
+        cout << "  2. Vyhladavanie v Hierarchii" << endl;
+
+        bool koniec = false;
+        int typeVstup = -1;
+
+        while (!koniec) {
+            cin >> typeVstup;
+            if (typeVstup > 2 || typeVstup < 0) {
+                cout << "Zly vstup!" << endl;
+            }
+            else {
+                koniec = true;
+            }
+        }
+
+        system("cls");
+
+        if (typeVstup == 0)
+            vstupMenu = 0;
+        else if (typeVstup == 1)
+            vyhladanieVTabulkach();
+        else if (typeVstup == 2)
+            vyhladavanieVHierarchii();
+
+    }
+}
+
+// 2.Uroven
+void vyhladavanieVHierarchii() {
     int vstup = -1;
 
     while (vstup != 0) {
@@ -51,7 +97,7 @@ int main()
 
         if (vstup == -2) {
             vyhladavanie();
-        } 
+        }
         else {
             if (vstup == -1) {
                 app->getIterator()->up();
@@ -61,10 +107,53 @@ int main()
             }
         }
     }
+}
 
-    delete app;
-    return 0;
+// 3.Uroven
+void vyhladanieVTabulkach() {
+    int vstupVyhladavania = -1;
 
+    while (vstupVyhladavania != 0) {
+        cout << "Zvolte z troch typov 'uzemnych jednotiek' ktore chcete vyhladat:" << endl;
+        cout << "  1. Obec" << endl;
+        cout << "  2. Okres" << endl;
+        cout << "  3. Kraj'" << endl;
+
+        bool koniec = false;
+        int typeVstup = -1;
+
+        while (!koniec) {
+            cin >> typeVstup;
+            if (typeVstup > 3 || typeVstup < 0) {
+                cout << "Zly vstup!" << endl;
+            }
+            else {
+                koniec = true;
+            }
+        }
+        
+        cout << "Zadajte nazov 'uzmenej jednotky', ktoru chcete vyhladat:" << endl;
+        string textVstup = "";
+        cin.ignore();
+        getline(cin, textVstup);
+
+        switch (typeVstup)
+        {
+            case 1:
+                hasTypeTabulky(MUNICIPALITY, textVstup);
+                break;
+            case 2:
+                hasTypeTabulky(DISTRICT, textVstup);
+                break;
+            case 3:
+                hasTypeTabulky(REGION, textVstup);
+                break;
+        }
+
+        coutToConsole();
+
+        vstupVyhladavania = 0;
+    }
 }
 
 void vyhladavanie() {
@@ -97,7 +186,7 @@ void findInformation(int s) {
 
     while (vstup != "q") {
         vypisAktPoziciu();
-        cout << "\nPre navrat stlacte 'q'" << endl;
+        cout << "\nPre navrat stlacte '0'" << endl;
         if (s != 3) {
             cout << "Zadajte text ktory chcete vyhladat: " << endl;
 
@@ -164,7 +253,9 @@ void startsWith(string vstup) {
     // Zacina na znak
     //https://www.techiedelight.com/check-if-a-string-starts-with-a-certain-string-in-cpp/
      
-    Searcher::getTerritorialUnitsByString(app->getIterator()->begin(), app->getHierarchy()->end(), filteredUnits, [&](TerritorialUnit* territorialUnit) {
+    Searcher<ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>::PreOrderHierarchyIterator,
+        ds::amt::Hierarchy<ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>>::PreOrderHierarchyIterator>
+        ::getTerritorialUnitsByString(app->getIterator()->begin(), app->getHierarchy()->end(), filteredUnits, [&](TerritorialUnit* territorialUnit) {
         string name = territorialUnit->getShortTitle();
 
         for_each(name.begin(), name.end(), [](char& c) {
@@ -182,7 +273,9 @@ void contains(string vstup) {
     // Coitains
     // https://www.techiedelight.com/check-if-a-string-contains-another-string-in-cpp/
 
-    Searcher::getTerritorialUnitsByString(app->getIterator()->begin(), app->getHierarchy()->end(), filteredUnits, [&](TerritorialUnit* territorialUnit) {
+    Searcher<ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>::PreOrderHierarchyIterator,
+        ds::amt::Hierarchy<ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>>::PreOrderHierarchyIterator>
+        ::getTerritorialUnitsByString(app->getIterator()->begin(), app->getHierarchy()->end(), filteredUnits, [&](TerritorialUnit* territorialUnit) {
         string name = territorialUnit->getShortTitle();
 
         for_each(name.begin(), name.end(), [](char& c) {
@@ -200,9 +293,37 @@ void hasType(TerritorialUnitType type) {
     // Zacina na znak
     //https://www.techiedelight.com/check-if-a-string-starts-with-a-certain-string-in-cpp/
 
-    Searcher::getTerritorialUnitsByString(app->getIterator()->begin(), app->getHierarchy()->end(), filteredUnits, [&](TerritorialUnit* territorialUnit) {
+    Searcher<ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>::PreOrderHierarchyIterator,
+        ds::amt::Hierarchy<ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>>::PreOrderHierarchyIterator>
+        ::getTerritorialUnitsByString(app->getIterator()->begin(), app->getHierarchy()->end(), filteredUnits, [&](TerritorialUnit* territorialUnit) {
         return territorialUnit->getType() == type;
     });
+}
+
+void hasTypeTabulky(TerritorialUnitType type, string text) {
+
+    filteredUnits = new TerritorialStructure();
+
+    switch (type)
+    {
+    case REGION:
+        Searcher <ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>::HashTableIterator,
+            ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>::HashTableIterator>
+            ::getTerritorialUnitsFromTable(app->getUnits()->regionTerrUnits, filteredUnits, text);
+        break;
+    case DISTRICT:
+        Searcher <ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>::HashTableIterator,
+            ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>::HashTableIterator>
+            ::getTerritorialUnitsFromTable(app->getUnits()->districtTerrUnits, filteredUnits, text);
+        break;
+        break;
+    case MUNICIPALITY:
+        Searcher <ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>::HashTableIterator,
+            ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>::HashTableIterator>
+            ::getTerritorialUnitsFromTable(app->getUnits()->municipalityTerrUnits, filteredUnits, text);
+        break;
+        break;
+    }
 }
 
 void coutToConsole() {
