@@ -343,7 +343,7 @@ namespace ds::adt {
     template<typename K, typename T, typename SequenceType>
     typename SequenceType::BlockType* UnsortedSequenceTable<K, T, SequenceType>::findBlockWithKey(K key)
     {
-        return this->getSequence()->findBlockWithProperty([&key](typename SequenceTable::BlockType* b) ->bool
+        return this->getSequence()->findBlockWithProperty([&key](typename SequenceType::BlockType* b) ->bool
             {
                 return b->data_.key_ == key;
             });

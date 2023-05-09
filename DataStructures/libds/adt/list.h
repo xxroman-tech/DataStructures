@@ -186,7 +186,7 @@ namespace ds::adt {
     T GeneralList<T, SequenceType>::access(size_t index)
     {
         // Cvicenie 08
-        typename SequenceType::BlockType* block = this->getSequence()->access();
+        typename SequenceType::BlockType* block = this->getSequence()->access(index);
 
         if (block == nullptr) {
             this->error("Invalid index!");
@@ -224,11 +224,14 @@ namespace ds::adt {
     void GeneralList<T, SequenceType>::set(size_t index, T element)
     {
         // Cvicenie 08
-        if (index < 0 || index > this->size()) {
-            this->error("Invalid index!");
+        typename SequenceType::BlockType* block = this->getSequence()->access(index);
+
+        if (block == nullptr)
+        {
+            throw std::out_of_range("Invalid index!");
         }
 
-        this->getSequence()->access(index).data_ = element;
+        block->data_ = element;
     }
 
     template<typename T, typename SequenceType>
@@ -281,6 +284,6 @@ namespace ds::adt {
     template<typename T, typename SequenceType>
     SequenceType* GeneralList<T, SequenceType>::getSequence() const
     {
-        return static_cast<SequenceType*>(this->memoryStructure_);
+        return dynamic_cast<SequenceType*>(this->memoryStructure_);
     }
 }

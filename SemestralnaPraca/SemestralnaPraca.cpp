@@ -208,6 +208,7 @@ void hasType(TerritorialUnitType type) {
 void coutToConsole() {
     int i = 1;
     cout << "\n" << endl;
+
     for (TerritorialUnit* filUnit : *filteredUnits) {
         cout << i << ". | " << filUnit->toString() << endl;
         i++;

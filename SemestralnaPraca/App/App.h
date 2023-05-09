@@ -93,29 +93,34 @@ void App::load() {
 	this->loadFromFile("Resources/Data/okresy_c.csv", DISTRICT);
 	this->loadFromFile("Resources/Data/obce_c.csv", MUNICIPALITY);
 
-	for (TerritorialUnit* unit : *this->units) {
-		if (unit->getType() == REGION) {
-			this->hierarchy->emplaceSon(*this->hierarchy->accessRoot(), this->hierarchy->accessRoot()->sons_->size()).data_ = unit;
+	for (auto region : *this->units->regionTerrUnits) {
+		for (auto regionInsideBlock : *region.data_) {
+			this->hierarchy->emplaceSon(*this->hierarchy->accessRoot(), this->hierarchy->accessRoot()->sons_->size()).data_ = regionInsideBlock;
 		}
+	}
 
-		if (unit->getType() == DISTRICT) {
+	for (auto district : *this->units->districtTerrUnits) {
+		for (auto districtInsideBlock : *district.data_) {
 			for (ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>* region : *this->hierarchy->accessRoot()->sons_) {
-				if (unit->getCode().substr(0, 5) == region->data_->getCode()) {
-					this->hierarchy->emplaceSon(*region, region->sons_->size()).data_ = unit;
+				if (districtInsideBlock->getCode().substr(0, 5) == region->data_->getCode()) {
+					this->hierarchy->emplaceSon(*region, region->sons_->size()).data_ = districtInsideBlock;
 				}
 			}
 		}
+	}
 
-		if (unit->getType() == MUNICIPALITY) {
+	for (auto municipality : *this->units->municipalityTerrUnits) {
+		for (auto municInsideBlock : *municipality.data_) {
 			for (ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>* region : *this->hierarchy->accessRoot()->sons_) {
 				for (ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>* district : *region->sons_) {
-					if (unit->getCode().substr(0, 6) == district->data_->getCode()) {
-						this->hierarchy->emplaceSon(*district, district->sons_->size()).data_ = unit;
+					if (municInsideBlock->getCode().substr(0, 6) == district->data_->getCode()) {
+						this->hierarchy->emplaceSon(*district, district->sons_->size()).data_ = municInsideBlock;
 					}
 				}
 			}
 		}
 	}
+
 
 	// Vypis
 	//this->hierarchy->processPreOrder(this->hierarchy->accessRoot(), [&](const ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>* terrUnit) {
