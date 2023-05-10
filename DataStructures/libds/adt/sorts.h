@@ -111,9 +111,18 @@ namespace ds::adt
     template<typename T>
     void SelectSort<T>::sort(amt::ImplicitSequence<T>& is, std::function<bool(const T&, const T&)> compare)
     {
-        // TODO 12
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        // Cvicenie 12
+        for (size_t i = 0; i < is.size() - 1; ++i) {
+            size_t min = i;
+            for (size_t j = i + 1; j < is.size(); ++j) {
+                if (compare(is.access(j)->data_, is.access(min)->data_)) {
+                    min = j;
+                }
+            }
+
+            using std::swap;
+            swap(is.access(i)->data_, is.access(min)->data_);
+        }
     }
 
     template<typename T>
@@ -156,9 +165,37 @@ namespace ds::adt
     template<typename T>
     void QuickSort<T>::quick(amt::ImplicitSequence<T>& is, std::function<bool(const T&, const T&)> compare, size_t min, size_t max)
     {
-        // TODO 12
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        // Cvicenie 12
+        T pivot = is.access(min + (max - min) / 2)->data_;
+        size_t left = min;
+        size_t right = max;
+
+        do {
+
+            while (compare(is.access(left)->data_, pivot)) {
+                ++left;
+            }
+
+            while (right > 0 && compare(pivot, is.access(right)->data_)) {
+                --right;
+            }
+
+            if (left <= right) {
+
+                using std::swap;
+                swap(is.access(left)->data_, is.access(right)->data_);
+                ++left;
+                if (right > 0)
+                    --right;
+            }
+
+        } while (left <= right);
+
+        if (min < right)
+            quick(is, compare, min, right);
+
+        if (left < max)
+            quick(is, compare, left, max);
     }
 
     template<typename T>

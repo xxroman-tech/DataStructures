@@ -38,9 +38,9 @@ std::vector<std::unique_ptr<ds::tests::Test>> createTests()
 	//adt->add_test(std::make_unique<ds::tests::TreeTest>());
 
 	//// TODO 08
-	adt->add_test(std::make_unique<ds::tests::QueueTest>());
-	adt->add_test(std::make_unique<ds::tests::StackTest>());
-	adt->add_test(std::make_unique<ds::tests::PriorityQueueTest>());
+	//adt->add_test(std::make_unique<ds::tests::QueueTest>());
+	//adt->add_test(std::make_unique<ds::tests::StackTest>());
+	//adt->add_test(std::make_unique<ds::tests::PriorityQueueTest>());
 
 	//// TODO 09
 	adt->add_test(std::make_unique<ds::tests::SequenceTableTest>());
@@ -49,7 +49,7 @@ std::vector<std::unique_ptr<ds::tests::Test>> createTests()
 	adt->add_test(std::make_unique<ds::tests::NonSequenceTableTest>());
 
 	//// TODO 12
-	//adt->add_test(std::make_unique<ds::tests::SortTest>());
+	adt->add_test(std::make_unique<ds::tests::SortTest>());
 
 	root->add_test(std::move(mm));
 	root->add_test(std::move(amt));
