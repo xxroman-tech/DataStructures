@@ -1,7 +1,6 @@
 #pragma once
 
 #include <iostream>
-#include <vector>
 #include "Models/TerritorialUnit.h"
 
 #include <libds/adt/table.h>
@@ -17,38 +16,39 @@ public:
 	~TerritorialStructure();
 	void add(TerritorialUnit* territorialUnit);
 
-	// https://stackoverflow.com/questions/65324393/making-a-class-iterable-with-iteration-order-depending-on-class-implementation?fbclid=IwAR2HEXxtbgHtVdR2p8DUZEIjPtkVcv-IVd_-nIyQ4PDsqXPFAyuoVJH7pNM
-	auto begin();
-	auto begin() const;
-	auto end();
-	auto end() const;
-
 	ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>* regionTerrUnits;
 	ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>* districtTerrUnits;
 	ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>* municipalityTerrUnits;
-private:
-	vector<TerritorialUnit*> territorialUnits;
 };
 
-TerritorialStructure::TerritorialStructure() :
-	territorialUnits(vector<TerritorialUnit*>()) { 
+TerritorialStructure::TerritorialStructure() { 
 	this->regionTerrUnits = new ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>();
 	this->districtTerrUnits = new ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>();
 	this->municipalityTerrUnits = new ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>();
 }
 
 TerritorialStructure::~TerritorialStructure() {
-	this->territorialUnits.clear();
-
 	for (auto region : *this->regionTerrUnits) {
+		for (auto x : *region.data_) {
+			delete x;
+		}
+		region.data_->clear();
 		delete region.data_;
 	}
 
 	for (auto district : *this->districtTerrUnits) {
+		for (auto x : *district.data_) {
+			delete x;
+		}
+		district.data_->clear();
 		delete district.data_;
 	}
 
 	for (auto munic : *this->municipalityTerrUnits) {
+		for (auto x : *munic.data_) {
+			delete x;
+		}
+		munic.data_->clear();
 		delete munic.data_;
 	}
 
@@ -62,8 +62,6 @@ TerritorialStructure::~TerritorialStructure() {
 }
 
 void TerritorialStructure::add(TerritorialUnit* territorialUnit) {
-	this->territorialUnits.push_back(territorialUnit);
-
 	ds::adt::ImplicitList<TerritorialUnit*>* list2 = nullptr;
 	ds::adt::ImplicitList<TerritorialUnit*>** list = &list2;
 
@@ -94,21 +92,5 @@ void TerritorialStructure::add(TerritorialUnit* territorialUnit) {
 
 
 	(*list)->insertLast(territorialUnit);
-}
-
-auto TerritorialStructure::begin() {
-	return this->territorialUnits.begin();
-}
-
-auto TerritorialStructure::begin() const {
-	return this->territorialUnits.begin();
-}
-
-auto TerritorialStructure::end() {
-	return this->territorialUnits.end();
-}
-
-auto TerritorialStructure::end() const {
-	return this->territorialUnits.end();
 }
 

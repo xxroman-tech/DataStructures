@@ -13,24 +13,24 @@ class Searcher {
 public:
 	static void getTerritorialUnitsByString(
 		T begin, T end,
-		TerritorialStructure* filteredUnits,
+		ds::adt::ImplicitList<TerritorialUnit*>* filteredUnits,
 		const function <bool(TerritorialUnit*)>& operation);
 
 	static void getTerritorialUnitsFromTable(
 		ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>* list, 
-		TerritorialStructure* filteredUnits, 
+		ds::adt::ImplicitList<TerritorialUnit*>* filteredUnits,
 		string officialTitle);
 };
 
 template<typename T, typename BlockType>
 void Searcher<T, BlockType>::getTerritorialUnitsByString(
 	T begin, T end,
-	TerritorialStructure* filteredUnits,
+	ds::adt::ImplicitList<TerritorialUnit*>* filteredUnits,
 	const function <bool(TerritorialUnit*)>& operation) {
 
 	for (BlockType it = begin; it != end; ++it) {
 		if (operation(*it)) {
-			filteredUnits->add(*it);
+			filteredUnits->insertLast(*it);
 		}
 	}
 }
@@ -38,7 +38,7 @@ void Searcher<T, BlockType>::getTerritorialUnitsByString(
 template<typename T, typename BlockType>
 void Searcher<T, BlockType>::getTerritorialUnitsFromTable(
 	ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>* list,
-	TerritorialStructure* filteredUnits,
+	ds::adt::ImplicitList<TerritorialUnit*>* filteredUnits,
 	string officialTitle) {
 
 	ds::adt::ImplicitList<TerritorialUnit*>* list2 = nullptr;
@@ -49,6 +49,6 @@ void Searcher<T, BlockType>::getTerritorialUnitsFromTable(
 	}
 
 	for (auto unit : **data) {
-		filteredUnits->add(unit);
+		filteredUnits->insertLast(unit);
 	}
 }

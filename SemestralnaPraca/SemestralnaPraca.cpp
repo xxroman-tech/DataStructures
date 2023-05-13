@@ -22,7 +22,7 @@ void coutToConsole();
 void vypisAktPoziciu();
 
 App* app;
-TerritorialStructure* filteredUnits;
+ds::adt::ImplicitList<TerritorialUnit*>* filteredUnits;
 
 int main()
 {
@@ -248,7 +248,7 @@ void vypisAktPoziciu() {
 
 void startsWith(string vstup) {
 
-    filteredUnits = new TerritorialStructure();
+    filteredUnits = new ds::adt::ImplicitList<TerritorialUnit*>();
 
     // Zacina na znak
     //https://www.techiedelight.com/check-if-a-string-starts-with-a-certain-string-in-cpp/
@@ -268,7 +268,7 @@ void startsWith(string vstup) {
 
 void contains(string vstup) {
 
-    filteredUnits = new TerritorialStructure();
+    filteredUnits = new ds::adt::ImplicitList<TerritorialUnit*>();
 
     // Coitains
     // https://www.techiedelight.com/check-if-a-string-contains-another-string-in-cpp/
@@ -288,7 +288,7 @@ void contains(string vstup) {
 
 void hasType(TerritorialUnitType type) {
 
-    filteredUnits = new TerritorialStructure();
+    filteredUnits = new ds::adt::ImplicitList<TerritorialUnit*>();
 
     // Zacina na znak
     //https://www.techiedelight.com/check-if-a-string-starts-with-a-certain-string-in-cpp/
@@ -302,7 +302,7 @@ void hasType(TerritorialUnitType type) {
 
 void hasTypeTabulky(TerritorialUnitType type, string text) {
 
-    filteredUnits = new TerritorialStructure();
+    filteredUnits = new ds::adt::ImplicitList<TerritorialUnit*>();
 
     switch (type)
     {
@@ -316,12 +316,10 @@ void hasTypeTabulky(TerritorialUnitType type, string text) {
             ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>::HashTableIterator>
             ::getTerritorialUnitsFromTable(app->getUnits()->districtTerrUnits, filteredUnits, text);
         break;
-        break;
     case MUNICIPALITY:
         Searcher <ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>::HashTableIterator,
             ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>::HashTableIterator>
             ::getTerritorialUnitsFromTable(app->getUnits()->municipalityTerrUnits, filteredUnits, text);
-        break;
         break;
     }
 }

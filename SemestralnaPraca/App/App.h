@@ -79,10 +79,6 @@ App::~App() {
 	delete hierarchy;
 	hierarchy = nullptr;
 
-	for (TerritorialUnit* unit : *units) {
-		delete unit;
-	}
-
 	delete units;
 	units = nullptr;
 }
