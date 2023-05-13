@@ -6,8 +6,6 @@
 #include "../SemestralnaPraca/Structures/HierarchyIterator.h"
 
 // Trieda bude loadovat data do pozadovanych struktur
-// Zatial loaduje len do struktury TerritorialUnitStructure ktora ma vector 
-
 
 class App {
 public:
@@ -101,6 +99,7 @@ ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>* App::getHierarchy() {
 
 void App::vypisMozneCesty() {
 	size_t index = 1;
+	cout << endl;
 	for (ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>* unit : *this->iterator->getPosition()->sons_) {
 		cout << index++ << ". " << unit->data_->toString() << endl;
 	}

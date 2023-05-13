@@ -4,9 +4,11 @@
 #include <Windows.h>
 #include "App/App.h"
 #include "Services/Searcher.h"
+#include "Services/Sorter.h"
 #include <algorithm>
 #include <libds/heap_monitor.h>
 #include "Structures/Enums/TerritorialUnitTypes.h"
+#include <libds/adt/sorts.h>
 
 void mainMenu();
 void vyhladavanieVHierarchii();
@@ -17,7 +19,7 @@ void startsWith(string vstup);
 void contains(string vstup);
 void hasType(TerritorialUnitType type);
 void hasTypeTabulky(TerritorialUnitType type, string text);
-void coutToConsole();
+void coutToConsole(bool filtering);
 
 void vypisAktPoziciu();
 
@@ -45,6 +47,7 @@ void mainMenu() {
     int vstupMenu = -1;
 
     while (vstupMenu != 0) {
+        cout << "\nPre ukoncenie stlacte nulu '0'" << endl;
         cout << "Zvolte typ vyhladavania:" << endl;
         cout << "  1. Vyhladavanie v Tabulkach" << endl;
         cout << "  2. Vyhladavanie v Hierarchii" << endl;
@@ -82,8 +85,8 @@ void vyhladavanieVHierarchii() {
         cout << "\nPre ukoncenie stlacte nulu '0'" << endl;
         vypisAktPoziciu();
 
+        cout << "\nZvolte akciu:" << endl;
         cout << "  -2. Vyhladajte v podstrome" << endl;
-        cout << "Zvolte akciu:" << endl;
         if (app->getIterator()->getPosition()->parent_ != nullptr) {
             cout << "  -1. Presun na: " << app->getIterator()->getPosition()->parent_->data_->getOfficialTitle() << endl;
         }
@@ -114,7 +117,7 @@ void vyhladanieVTabulkach() {
     int vstupVyhladavania = -1;
 
     while (vstupVyhladavania != 0) {
-        cout << "Zvolte z troch typov 'uzemnych jednotiek' ktore chcete vyhladat:" << endl;
+        cout << "\nZvolte z troch typov 'uzemnych jednotiek' ktore chcete vyhladat:" << endl;
         cout << "  1. Obec" << endl;
         cout << "  2. Okres" << endl;
         cout << "  3. Kraj'" << endl;
@@ -124,15 +127,18 @@ void vyhladanieVTabulkach() {
 
         while (!koniec) {
             cin >> typeVstup;
-            if (typeVstup > 3 || typeVstup < 0) {
-                cout << "Zly vstup!" << endl;
-            }
-            else {
+            if (typeVstup > 0 && typeVstup <= 3) {
+                system("cls");
                 koniec = true;
+            } else if (typeVstup == 0) {
+                system("cls");
+                return;
+            } else {
+                cout << "Zly vstup!" << endl;
             }
         }
         
-        cout << "Zadajte nazov 'uzmenej jednotky', ktoru chcete vyhladat:" << endl;
+        cout << "\nZadajte nazov 'uzmenej jednotky', ktoru chcete vyhladat:" << endl;
         string textVstup = "";
         cin.ignore();
         getline(cin, textVstup);
@@ -150,7 +156,7 @@ void vyhladanieVTabulkach() {
                 break;
         }
 
-        coutToConsole();
+        coutToConsole(false);
 
         vstupVyhladavania = 0;
     }
@@ -161,6 +167,7 @@ void vyhladavanie() {
     int vstupVyhladavnia = -1;
 
     while (vstupVyhladavnia != 0) {
+        cout << "\nPre navrat stlacte '0'" << endl;
         cout << "Zadajte akciu: " << endl;
         cout << "  1. Vyhladat informacie 'startsWith'" << endl;
         cout << "  2. Vyhladat informacie 'cotains'" << endl;
@@ -236,14 +243,14 @@ void findInformation(int s) {
             }
         }
 
-        coutToConsole();
+        coutToConsole(true);
 
         vstup = "q";
     }
 }
 
 void vypisAktPoziciu() { 
-    cout << "Aktualna pozicia: " << app->getIterator()->getPosition()->data_->getOfficialTitle() << endl << endl; 
+    cout << "Aktualna pozicia: " << app->getIterator()->getPosition()->data_->getOfficialTitle() << endl; 
 }
 
 void startsWith(string vstup) {
@@ -258,9 +265,7 @@ void startsWith(string vstup) {
         ::getTerritorialUnitsByString(app->getIterator()->begin(), app->getHierarchy()->end(), filteredUnits, [&](TerritorialUnit* territorialUnit) {
         string name = territorialUnit->getShortTitle();
 
-        for_each(name.begin(), name.end(), [](char& c) {
-            c = ::tolower(c);
-        });
+        Sorter::toLowerCase(name.begin(), name.end());
 
         return name.rfind(vstup, 0) == 0;
     });
@@ -278,9 +283,7 @@ void contains(string vstup) {
         ::getTerritorialUnitsByString(app->getIterator()->begin(), app->getHierarchy()->end(), filteredUnits, [&](TerritorialUnit* territorialUnit) {
         string name = territorialUnit->getShortTitle();
 
-        for_each(name.begin(), name.end(), [](char& c) {
-            c = ::tolower(c);
-        });
+        Sorter::toLowerCase(name.begin(), name.end());
 
         return name.find(vstup) != string::npos;
     });
@@ -290,8 +293,7 @@ void hasType(TerritorialUnitType type) {
 
     filteredUnits = new ds::adt::ImplicitList<TerritorialUnit*>();
 
-    // Zacina na znak
-    //https://www.techiedelight.com/check-if-a-string-starts-with-a-certain-string-in-cpp/
+    // Ma typ uzmenej jednotky podla Enumu 
 
     Searcher<ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>::PreOrderHierarchyIterator,
         ds::amt::Hierarchy<ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>>::PreOrderHierarchyIterator>
@@ -324,14 +326,47 @@ void hasTypeTabulky(TerritorialUnitType type, string text) {
     }
 }
 
-void coutToConsole() {
+void coutToConsole(bool filtering) {
+
+    ds::amt::ImplicitSequence<TerritorialUnit*>* sequence = new ds::amt::ImplicitSequence<TerritorialUnit*>();
+
+    for (TerritorialUnit* unit : *filteredUnits) {
+        sequence->insertLast().data_ = unit;
+    }
+
+    if (filtering) {
+        int typeOfCout = 0;
+        int ascChoose = 1;
+
+        cout << "Zadajte typ triedenia: " << endl;
+        cout << "  1. Utriedit 'compareAlphabetical'" << endl;
+        cout << "  2. Utriedit 'compareVowelsCount'" << endl;
+        cin >> typeOfCout;
+
+        cout << "Vzostupne alebo Zostupne: " << endl;
+        cout << "  1. Vzostupne" << endl;
+        cout << "  2. Zostupne" << endl;
+        cin >> ascChoose;
+
+        switch (typeOfCout) {
+        case 1:
+            Sorter::compareAlphabetical(sequence, ascChoose == 1);
+            break;
+        case 2:
+            Sorter::compareVowelsCount(sequence, ascChoose == 1);
+            break;
+        }
+    }
+
     int i = 1;
+    system("cls");
     cout << "\n" << endl;
 
-    for (TerritorialUnit* filUnit : *filteredUnits) {
+    for (TerritorialUnit* filUnit : *sequence) {
         cout << i << ". | " << filUnit->toString() << endl;
         i++;
     }
 
     delete filteredUnits;
+    delete sequence;
 }
