@@ -17,7 +17,7 @@ void vyhladanieVTabulkach();
 void findInformation(int s);
 void startsWith(string vstup);
 void contains(string vstup);
-void samePopulation();
+void samePopulation(int s);
 void hasType(TerritorialUnitType type);
 void hasTypeTabulky(TerritorialUnitType type, string text);
 void coutToConsole(bool filtering);
@@ -174,11 +174,13 @@ void vyhladavanie() {
         cout << "  2. cotains" << endl;
         cout << "  3. hasType" << endl;
         cout << "  4. hasSamePopulation ( 2022 - 2021 )" << endl;
+        cout << "  5. hasIncreaseInPopulation ( 2022 - 2021 )" << endl;
+        cout << "  6. hasDecreaseInPopulation ( 2022 - 2021 )" << endl;
 
         cin >> vstupVyhladavnia;
         system("cls");
 
-        if (vstupVyhladavnia > 4) {
+        if (vstupVyhladavnia > 6) {
             cout << "Zly vstup!" << endl;
         }
         else if (vstupVyhladavnia == 0) {
@@ -196,17 +198,14 @@ void findInformation(int s) {
     while (vstup != "q") {
         vypisAktPoziciu();
         cout << "\nPre navrat stlacte '0'" << endl;
-        if (s == 4) {
-            samePopulation();
+        if (s == 4 || s == 5 || s == 6) {
+            samePopulation(s);
         } else if (s != 3) {
             cout << "Zadajte text ktory chcete vyhladat: " << endl; 
 
             cin >> vstup;
 
-            // Change to lowecase
-            for_each(vstup.begin(), vstup.end(), [](char& c) {
-                c = ::tolower(c);
-            });
+            vstup = Sorter::toLowerCase(vstup);
 
             if (s == 1) {
                 startsWith(vstup);
@@ -218,7 +217,7 @@ void findInformation(int s) {
             cout << "Zvolte z troch typov 'uzemnych jednotiek' ktore chcete vyhladat:" << endl;
             cout << "  1. Obec" << endl;
             cout << "  2. Okres" << endl;
-            cout << "  3. Kraj'" << endl;
+            cout << "  3. Kraj" << endl;
 
             bool koniec = false;
             int typeVstup = -1;
@@ -269,7 +268,7 @@ void startsWith(string vstup) {
         ::getTerritorialUnitsByString(app->getIterator()->begin(), app->getHierarchy()->end(), filteredUnits, [&](TerritorialUnit* territorialUnit) {
         string name = territorialUnit->getShortTitle();
 
-        Sorter::toLowerCase(name.begin(), name.end());
+        name = Sorter::toLowerCase(name);
 
         return name.rfind(vstup, 0) == 0;
     });
@@ -287,20 +286,29 @@ void contains(string vstup) {
         ::getTerritorialUnitsByString(app->getIterator()->begin(), app->getHierarchy()->end(), filteredUnits, [&](TerritorialUnit* territorialUnit) {
         string name = territorialUnit->getShortTitle();
 
-        Sorter::toLowerCase(name.begin(), name.end());
+        name = Sorter::toLowerCase(name);
 
         return name.find(vstup) != string::npos;
     });
 }
 
-void samePopulation() {
+void samePopulation(int s) {
     filteredUnits = new ds::adt::ImplicitList<TerritorialUnit*>();
 
     Searcher<ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>::PreOrderHierarchyIterator,
         ds::amt::Hierarchy<ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>>::PreOrderHierarchyIterator>
         ::getTerritorialUnitsByString(app->getIterator()->begin(), app->getHierarchy()->end(), filteredUnits, [&](TerritorialUnit* territorialUnit) {
         
-        return territorialUnit->getDifferenceOfPopulation() == 0;
+        switch (s)
+        {
+        case 4:
+            return territorialUnit->getDifferenceOfPopulation() == 0;
+        case 5:
+            return territorialUnit->getDifferenceOfPopulation() > 0;
+        case 6:
+            return territorialUnit->getDifferenceOfPopulation() < 0;
+        }
+
     });
 }
 

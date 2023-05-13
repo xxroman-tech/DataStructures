@@ -16,10 +16,7 @@ public:
 		bool asc
 	);
 
-	static void toLowerCase(
-		std::string::iterator beginIterator,
-		std::string::iterator endIterator
-	);
+	static std::string toLowerCase(std::string text);
 };
 
 void Sorter::compareAlphabetical(
@@ -32,10 +29,48 @@ void Sorter::compareAlphabetical(
 		string firstUnitName = firstUnit->getOfficialTitle();
 		string secondUnitName = secondUnit->getOfficialTitle();
 
-		Sorter::toLowerCase(firstUnitName.begin(), firstUnitName.end());
-		Sorter::toLowerCase(secondUnitName.begin(), secondUnitName.end());
-
-		return firstUnitName < secondUnitName;
+		// Pre tento algoritmus mi dal zaklad OpenAi chat bot, nijak inak sa mi to nepodarilo naimplementovat
+		const char* sk_alphabet = asc ? "aAáÁäÄbBcCèÈdDïÏeEéÉfFgGhHiIíÍjJkKlLåÅ¾¼mMnNòÒoOóÓôÔpPqQrRàÀsSšŠtTuUúÚvVwWxXyYýÝzZžŽ"
+									  : "ŽžZzÝýYyXxWwVvÚúUuTtŠšSsÀàRrQqPpÔôÓóOoÒòNnMm¼¾ÅåLlKkJjÍíIiHhGgFfÉéEeÏïDdÈèCcBbÄäÁáAa";
+		const char* c1 = firstUnitName.c_str();
+		const char* c2 = secondUnitName.c_str();
+		while (*c1 && *c2) {
+			char ch1 = *c1;
+			char ch2 = *c2;
+			if (ch1 >= 'A' && ch1 <= 'Z') {
+				ch1 = ch1 - 'A' + 'a';
+			}
+			if (ch2 >= 'A' && ch2 <= 'Z') {
+				ch2 = ch2 - 'A' + 'a';
+			}
+			const char* pos1 = strchr(sk_alphabet, ch1);
+			const char* pos2 = strchr(sk_alphabet, ch2);
+			if (pos1 && pos2) {
+				if (pos1 < pos2) {
+					return true;
+				}
+				else if (pos1 > pos2) {
+					return false;
+				}
+			}
+			else if (pos1) {
+				return true;
+			}
+			else if (pos2) {
+				return false;
+			}
+			else {
+				if (ch1 < ch2) {
+					return true;
+				}
+				else if (ch1 > ch2) {
+					return false;
+				}
+			}
+			c1++;
+			c2++;
+		}
+		return *c1 < *c2;
 	});
 
 }
@@ -77,12 +112,18 @@ void Sorter::compareVowelsCount(
 
 }
 
-void Sorter::toLowerCase(
-	std::string::iterator beginIterator,
-	std::string::iterator endIterator) {
-	
-	for_each(beginIterator, endIterator, [&](char& c) {
-		c = ::tolower(c);
-	});
+std::string Sorter::toLowerCase(std::string text) {
+
+	std::string sk_alphabet_lower = "aáäbcèdïdzdžeéfghiíjklå¾mnòoóôpqràsštuúvwxyýzž";
+	std::string sk_alphabet_upper = "AÁÄBCÈDÏDZDŽEÉFGHIÍJKLÅ¼MNÒOÓÔPQRÀSŠTUÚVWXYÝZŽ";
+
+	for (int c = 0; c < text.size(); c++) {
+		for (auto i = 0; i < sk_alphabet_upper.size(); i++) {
+			if (text.at(c) == sk_alphabet_upper.at(i))
+				text.at(c) = sk_alphabet_lower.at(i);
+		}
+	}
+
+	return text;
 
 }
