@@ -20,6 +20,8 @@ public:
 	void vypisMozneCesty();
 private:
 	void loadFromFile(string filePath, TerritorialUnitType type);
+	void loadAndSaveBonusData(string filePath);
+	void agregateBonusData();
 
 	TerritorialStructure* units;
 	ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>* hierarchy;
@@ -48,9 +50,16 @@ App::~App() {
 
 void App::load() {
 
+	cout << "Data sa nacitavaju do tabuliek ....." << endl;
+
 	this->loadFromFile("Resources/Data/kraje_c.csv", REGION);
 	this->loadFromFile("Resources/Data/okresy_c.csv", DISTRICT);
 	this->loadFromFile("Resources/Data/obce_c.csv", MUNICIPALITY);
+	this->loadAndSaveBonusData("Resources/Data/bonus_c.csv");
+
+	cout << "Data nacitane do tabuliek." << endl;
+
+	cout << "Roztriedenie dat do hierarchie ....." << endl;
 
 	for (auto region : *this->units->regionTerrUnits) {
 		for (auto regionInsideBlock : *region.data_) {
@@ -80,13 +89,13 @@ void App::load() {
 		}
 	}
 
-
-	// Vypis
-	//this->hierarchy->processPreOrder(this->hierarchy->accessRoot(), [&](const ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>* terrUnit) {
-	//	cout << terrUnit->data_->toString() << endl;
-	//});
+	cout << "Data ulozene v hierarchii." << endl;
 
 	this->iterator = new HierarchyIterator(this->hierarchy, this->hierarchy->accessRoot());
+
+	cout << "Prebieha agregacia dat ....." << endl;
+	this->agregateBonusData();
+	cout << "Agregacie dat o obyvateloch prebehla uspesne." << endl;
 }
 
 TerritorialStructure* App::getUnits() {
@@ -122,4 +131,60 @@ void App::loadFromFile(string filePath, TerritorialUnitType type) {
 
 		this->units->add(unit);
 	}
+
+	loader.closeFile();
+}
+
+void App::loadAndSaveBonusData(string filePath) {
+	DataLoader loader = DataLoader(filePath);
+	loader.openFile();
+	loader.nextLine();
+
+	while (loader.nextLine()) {
+		string municCode = loader[0];
+		string num = loader[4];
+		int diffNum = 0;
+
+		stringstream stream(num);
+		stream >> diffNum;
+
+		TerritorialUnit** unit = nullptr;
+
+		if (this->units->municipalityTerrUnitsByCODE->tryFind(municCode, unit))
+			(*unit)->setDifferenceOfPopulation(diffNum);
+	}
+
+	loader.closeFile();
+}
+
+void App::agregateBonusData() {
+
+	int numInState = 0;
+
+	for (ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>* region : *this->hierarchy->accessRoot()->sons_) {
+
+		int numInRegion = 0; // Sucet rozdielov obyvatelstva v roku 2022 a 21 v okresoch kraja
+
+		for (ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>* district : *region->sons_) {
+
+			int numInDistrict = 0; // Sucet rozdielov obyvatelstva v roku 2022 a 21 v obciach daneho okresu
+
+			for (ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>* municip : *district->sons_) {
+
+				numInDistrict += municip->data_->getDifferenceOfPopulation();
+
+			}
+
+			district->data_->setDifferenceOfPopulation(numInDistrict);
+			numInRegion += numInDistrict;
+
+		}
+
+		region->data_->setDifferenceOfPopulation(numInRegion);
+		numInState += numInRegion;
+
+	}
+
+	this->hierarchy->accessRoot()->data_->setDifferenceOfPopulation(numInState);
+
 }

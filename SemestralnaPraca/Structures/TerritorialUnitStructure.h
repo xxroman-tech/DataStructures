@@ -19,12 +19,14 @@ public:
 	ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>* regionTerrUnits;
 	ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>* districtTerrUnits;
 	ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>* municipalityTerrUnits;
+	ds::adt::HashTable<string, TerritorialUnit*>* municipalityTerrUnitsByCODE;
 };
 
 TerritorialStructure::TerritorialStructure() { 
 	this->regionTerrUnits = new ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>();
 	this->districtTerrUnits = new ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>();
 	this->municipalityTerrUnits = new ds::adt::HashTable<string, ds::adt::ImplicitList<TerritorialUnit*>*>();
+	this->municipalityTerrUnitsByCODE = new ds::adt::HashTable<string, TerritorialUnit*>();
 }
 
 TerritorialStructure::~TerritorialStructure() {
@@ -55,13 +57,21 @@ TerritorialStructure::~TerritorialStructure() {
 	this->regionTerrUnits->clear();
 	this->districtTerrUnits->clear();
 	this->municipalityTerrUnits->clear();
+	this->municipalityTerrUnitsByCODE->clear();
 
 	delete this->regionTerrUnits;
 	delete this->districtTerrUnits;
 	delete this->municipalityTerrUnits;
+	delete this->municipalityTerrUnitsByCODE;
 }
 
 void TerritorialStructure::add(TerritorialUnit* territorialUnit) {
+
+	if (territorialUnit->getType() == MUNICIPALITY) {
+		string code = territorialUnit->getCode().substr(6, 6);
+		this->municipalityTerrUnitsByCODE->insert(code, territorialUnit);
+	}
+
 	ds::adt::ImplicitList<TerritorialUnit*>* list2 = nullptr;
 	ds::adt::ImplicitList<TerritorialUnit*>** list = &list2;
 

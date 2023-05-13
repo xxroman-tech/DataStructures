@@ -17,6 +17,7 @@ void vyhladanieVTabulkach();
 void findInformation(int s);
 void startsWith(string vstup);
 void contains(string vstup);
+void samePopulation();
 void hasType(TerritorialUnitType type);
 void hasTypeTabulky(TerritorialUnitType type, string text);
 void coutToConsole(bool filtering);
@@ -168,15 +169,16 @@ void vyhladavanie() {
 
     while (vstupVyhladavnia != 0) {
         cout << "\nPre navrat stlacte '0'" << endl;
-        cout << "Zadajte akciu: " << endl;
-        cout << "  1. Vyhladat informacie 'startsWith'" << endl;
-        cout << "  2. Vyhladat informacie 'cotains'" << endl;
-        cout << "  3. Vyhladat informacie podla 'hasType'" << endl;
+        cout << "Zadajte akciu (Vyhladat informacie): " << endl;
+        cout << "  1. startsWith" << endl;
+        cout << "  2. cotains" << endl;
+        cout << "  3. hasType" << endl;
+        cout << "  4. hasSamePopulation ( 2022 - 2021 )" << endl;
 
         cin >> vstupVyhladavnia;
         system("cls");
 
-        if (vstupVyhladavnia > 3) {
+        if (vstupVyhladavnia > 4) {
             cout << "Zly vstup!" << endl;
         }
         else if (vstupVyhladavnia == 0) {
@@ -194,8 +196,10 @@ void findInformation(int s) {
     while (vstup != "q") {
         vypisAktPoziciu();
         cout << "\nPre navrat stlacte '0'" << endl;
-        if (s != 3) {
-            cout << "Zadajte text ktory chcete vyhladat: " << endl;
+        if (s == 4) {
+            samePopulation();
+        } else if (s != 3) {
+            cout << "Zadajte text ktory chcete vyhladat: " << endl; 
 
             cin >> vstup;
 
@@ -210,8 +214,7 @@ void findInformation(int s) {
             else if (s == 2) {
                 contains(vstup);
             }
-        }
-        else {
+        } else {
             cout << "Zvolte z troch typov 'uzemnych jednotiek' ktore chcete vyhladat:" << endl;
             cout << "  1. Obec" << endl;
             cout << "  2. Okres" << endl;
@@ -250,7 +253,8 @@ void findInformation(int s) {
 }
 
 void vypisAktPoziciu() { 
-    cout << "Aktualna pozicia: " << app->getIterator()->getPosition()->data_->getOfficialTitle() << endl; 
+    cout << "Aktualna pozicia: " << app->getIterator()->getPosition()->data_->getOfficialTitle() 
+        << " | Rozdiel obyv. ( 2022 - 2021 ): " << app->getIterator()->getPosition()->data_->getDifferenceOfPopulation() << endl;
 }
 
 void startsWith(string vstup) {
@@ -289,6 +293,17 @@ void contains(string vstup) {
     });
 }
 
+void samePopulation() {
+    filteredUnits = new ds::adt::ImplicitList<TerritorialUnit*>();
+
+    Searcher<ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>::PreOrderHierarchyIterator,
+        ds::amt::Hierarchy<ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>>::PreOrderHierarchyIterator>
+        ::getTerritorialUnitsByString(app->getIterator()->begin(), app->getHierarchy()->end(), filteredUnits, [&](TerritorialUnit* territorialUnit) {
+        
+        return territorialUnit->getDifferenceOfPopulation() == 0;
+    });
+}
+
 void hasType(TerritorialUnitType type) {
 
     filteredUnits = new ds::adt::ImplicitList<TerritorialUnit*>();
@@ -298,6 +313,7 @@ void hasType(TerritorialUnitType type) {
     Searcher<ds::amt::MultiWayExplicitHierarchy<TerritorialUnit*>::PreOrderHierarchyIterator,
         ds::amt::Hierarchy<ds::amt::MultiWayExplicitHierarchyBlock<TerritorialUnit*>>::PreOrderHierarchyIterator>
         ::getTerritorialUnitsByString(app->getIterator()->begin(), app->getHierarchy()->end(), filteredUnits, [&](TerritorialUnit* territorialUnit) {
+        
         return territorialUnit->getType() == type;
     });
 }

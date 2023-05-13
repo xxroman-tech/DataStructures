@@ -16,7 +16,9 @@ public:
 	string getMediumTitle();
 	string getShortTitle();
 	string getNote();
+	int getDifferenceOfPopulation();
 	TerritorialUnitType getType();
+	void setDifferenceOfPopulation(int num);
 	string toString();
 private:
 	TerritorialUnitType type;
@@ -25,6 +27,7 @@ private:
 	string mediumTitle;
 	string shortTitle;
 	string note;
+	int differenceOfPopulation;
 };
 
 TerritorialUnit::TerritorialUnit(const string pCode, string pOfficialTitle, string pMediumTitle, string pShortTitle, string pNote, TerritorialUnitType pType) : 
@@ -33,7 +36,10 @@ TerritorialUnit::TerritorialUnit(const string pCode, string pOfficialTitle, stri
 	mediumTitle(pMediumTitle),
 	shortTitle(pShortTitle),
 	note(pNote),
-	type(pType) { }
+	type(pType) {
+	
+	differenceOfPopulation = 0;
+}
 
 TerritorialUnit::~TerritorialUnit() { }
 
@@ -61,6 +67,14 @@ TerritorialUnitType TerritorialUnit::getType() {
 	return this->type;
 }
 
+int TerritorialUnit::getDifferenceOfPopulation() {
+	return this->differenceOfPopulation;
+}
+
+void TerritorialUnit::setDifferenceOfPopulation(int num) {
+	this->differenceOfPopulation = num;
+}
+
 string TerritorialUnit::toString() {
 	stringstream stream;
 
@@ -69,6 +83,7 @@ string TerritorialUnit::toString() {
 	stream << " | " << this->mediumTitle;
 	stream << " | " << this->shortTitle;
 	stream << " | " << this->note;
+	stream << " | " << this->differenceOfPopulation;
 
 	return stream.str();
 }
