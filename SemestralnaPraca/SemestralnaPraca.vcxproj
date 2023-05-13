@@ -142,6 +142,7 @@
     <ClInclude Include="DataLoader\DataLoader.h" />
     <ClInclude Include="Services\Searcher.h" />
     <ClInclude Include="Structures\Enums\TerritorialUnitTypes.h" />
+    <ClInclude Include="Structures\HierarchyIterator.h" />
     <ClInclude Include="Structures\Models\TerritorialUnit.h" />
     <ClInclude Include="Structures\TerritorialUnitStructure.h" />
   </ItemGroup>
