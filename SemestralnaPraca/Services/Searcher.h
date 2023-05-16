@@ -41,14 +41,8 @@ void Searcher<T, BlockType>::getTerritorialUnitsFromTable(
 	ds::adt::ImplicitList<TerritorialUnit*>* filteredUnits,
 	string officialTitle) {
 
-	ds::adt::ImplicitList<TerritorialUnit*>* list2 = nullptr;
-	ds::adt::ImplicitList<TerritorialUnit*>** data = &list2;
-	
-	if (!list->tryFind(officialTitle, data)) {
-		return;
-	}
-
-	for (auto unit : **data) {
-		filteredUnits->insertLast(unit);
-	}
+	if (list->contains(officialTitle))
+		for (auto unit : *list->find(officialTitle)) {
+			filteredUnits->insertLast(unit);
+		}
 }
