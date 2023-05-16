@@ -29,9 +29,6 @@ void Sorter::compareAlphabetical(
 		string firstUnitName = firstUnit->getOfficialTitle();
 		string secondUnitName = secondUnit->getOfficialTitle();
 
-		// Pre tento algoritmus mi dal zaklad OpenAi chat bot, nijak inak sa mi to nepodarilo naimplementovat
-		// avsak algoritmus som si oddebugoval a posnazil sa mu porozumiet, bolo treba nejake veci pomenit,
-		// ako napr. bolo treba pridat do sk_alphabet vsetky znaky slovenskej abecedy a samozrejme aj uppercase znaky
 		const char* sk_alphabet = asc ? "aAáÁäÄbBcCèÈdDïÏeEéÉfFgGhHiIíÍjJkKlLåÅ¾¼mMnNòÒoOóÓôÔpPqQrRàÀsSšŠtTuUúÚvVwWxXyYıİzZ"
 									  : "ZzİıYyXxWwVvÚúUuTtŠšSsÀàRrQqPpÔôÓóOoÒòNnMm¼¾ÅåLlKkJjÍíIiHhGgFfÉéEeÏïDdÈèCcBbÄäÁáAa";
 		const char* c1 = firstUnitName.c_str();
