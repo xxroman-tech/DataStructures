@@ -72,35 +72,24 @@ void TerritorialStructure::add(TerritorialUnit* territorialUnit) {
 		this->municipalityTerrUnitsByCODE->insert(code, territorialUnit);
 	}
 
-	ds::adt::ImplicitList<TerritorialUnit*>* list2 = nullptr;
-	ds::adt::ImplicitList<TerritorialUnit*>** list = &list2;
-
 	switch (territorialUnit->getType())
 	{
 	case REGION:
-		if (!this->regionTerrUnits->tryFind(territorialUnit->getOfficialTitle(), list)) {
-			*list = new ds::adt::ImplicitList<TerritorialUnit*>();
-
-			this->regionTerrUnits->insert(territorialUnit->getOfficialTitle(), *list);
-		}
+		if (!this->regionTerrUnits->contains(territorialUnit->getOfficialTitle()))
+			this->regionTerrUnits->insert(territorialUnit->getOfficialTitle(), new ds::adt::ImplicitList<TerritorialUnit*>());
+		this->regionTerrUnits->find(territorialUnit->getOfficialTitle())->insertLast(territorialUnit);
 		break;
 	case DISTRICT:
-		if (!this->districtTerrUnits->tryFind(territorialUnit->getOfficialTitle(), list)) {
-			*list = new ds::adt::ImplicitList<TerritorialUnit*>();
-
-			this->districtTerrUnits->insert(territorialUnit->getOfficialTitle(), *list);
-		}
+		if (!this->districtTerrUnits->contains(territorialUnit->getOfficialTitle()))
+			this->districtTerrUnits->insert(territorialUnit->getOfficialTitle(), new ds::adt::ImplicitList<TerritorialUnit*>());
+		this->districtTerrUnits->find(territorialUnit->getOfficialTitle())->insertLast(territorialUnit);
 		break;
 	case MUNICIPALITY:
-		if (!this->municipalityTerrUnits->tryFind(territorialUnit->getOfficialTitle(), list)) {
-			*list = new ds::adt::ImplicitList<TerritorialUnit*>();
-
-			this->municipalityTerrUnits->insert(territorialUnit->getOfficialTitle(), *list);
-		}
+		if (!this->municipalityTerrUnits->contains(territorialUnit->getOfficialTitle()))
+			this->municipalityTerrUnits->insert(territorialUnit->getOfficialTitle(), new ds::adt::ImplicitList<TerritorialUnit*>());
+		this->municipalityTerrUnits->find(territorialUnit->getOfficialTitle())->insertLast(territorialUnit);
 		break;
 	}
 
-
-	(*list)->insertLast(territorialUnit);
 }
 
