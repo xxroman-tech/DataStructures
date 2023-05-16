@@ -358,8 +358,8 @@ void coutToConsole(bool filtering) {
         sequence->insertLast().data_ = unit;
     }
 
+    int typeOfCout = 0;
     if (filtering) {
-        int typeOfCout = 0;
         int ascChoose = 1;
 
         cout << "Zadajte typ triedenia: " << endl;
@@ -387,7 +387,10 @@ void coutToConsole(bool filtering) {
     cout << "\n" << endl;
 
     for (TerritorialUnit* filUnit : *sequence) {
-        cout << i << ". | " << filUnit->toString() << endl;
+        cout << i << ". | " << filUnit->toString();
+        if (typeOfCout == 2)
+            cout << " | samohlasky -> " << filUnit->getNumberOfVowels();
+        cout << endl;
         i++;
     }
 

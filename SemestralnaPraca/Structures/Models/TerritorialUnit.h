@@ -18,7 +18,9 @@ public:
 	string getNote();
 	int getDifferenceOfPopulation();
 	TerritorialUnitType getType();
+	int getNumberOfVowels();
 	void setDifferenceOfPopulation(int num);
+	void setNumberOfVowels(int num);
 	string toString();
 private:
 	TerritorialUnitType type;
@@ -28,6 +30,7 @@ private:
 	string shortTitle;
 	string note;
 	int differenceOfPopulation;
+	int numberOfVoWels;
 };
 
 TerritorialUnit::TerritorialUnit(const string pCode, string pOfficialTitle, string pMediumTitle, string pShortTitle, string pNote, TerritorialUnitType pType) : 
@@ -39,6 +42,7 @@ TerritorialUnit::TerritorialUnit(const string pCode, string pOfficialTitle, stri
 	type(pType) {
 	
 	differenceOfPopulation = 0;
+	numberOfVoWels = 0;
 }
 
 TerritorialUnit::~TerritorialUnit() { }
@@ -67,12 +71,22 @@ TerritorialUnitType TerritorialUnit::getType() {
 	return this->type;
 }
 
+int TerritorialUnit::getNumberOfVowels()
+{
+	return this->numberOfVoWels;
+}
+
 int TerritorialUnit::getDifferenceOfPopulation() {
 	return this->differenceOfPopulation;
 }
 
 void TerritorialUnit::setDifferenceOfPopulation(int num) {
 	this->differenceOfPopulation = num;
+}
+
+void TerritorialUnit::setNumberOfVowels(int num)
+{
+	this->numberOfVoWels = num;
 }
 
 string TerritorialUnit::toString() {

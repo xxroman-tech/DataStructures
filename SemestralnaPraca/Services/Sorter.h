@@ -105,6 +105,9 @@ void Sorter::compareVowelsCount(
 			}
 		});
 
+		firstUnit->setNumberOfVowels(numOfWovelsFirst);
+		secondUnit->setNumberOfVowels(numOfWovelsSecond);
+
 		return asc ? numOfWovelsFirst < numOfWovelsSecond
 			: numOfWovelsFirst > numOfWovelsSecond;
 	});
