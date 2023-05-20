@@ -33,7 +33,6 @@
     <ClInclude Include="Structures\Models\TerritorialUnit.h" />
     <ClInclude Include="Structures\TerritorialUnitStructure.h" />
     <ClInclude Include="Services\Searcher.h" />
-    <ClInclude Include="Cli\cli.h" />
     <ClInclude Include="App\App.h" />
     <ClInclude Include="Structures\Enums\TerritorialUnitTypes.h" />
     <ClInclude Include="Structures\HierarchyIterator.h" />

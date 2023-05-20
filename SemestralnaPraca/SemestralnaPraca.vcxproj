@@ -138,7 +138,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App\App.h" />
-    <ClInclude Include="Cli\cli.h" />
     <ClInclude Include="DataLoader\DataLoader.h" />
     <ClInclude Include="Services\Searcher.h" />
     <ClInclude Include="Services\Sorter.h" />
